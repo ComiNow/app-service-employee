@@ -1,0 +1,41 @@
+<div class="my-20 p-6">
+  <button
+    type="button"
+    [routerLink]="['/pos']"
+    routerLinkActive="router-link-active"
+    class="absolute flex items-center rounded-2xl p-2 text-gray-500 text-xl font-bold hover:text-black cursor-pointer"
+  >
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      width="24"
+      height="24"
+      fill="none"
+      stroke="currentColor"
+      stroke-width="3"
+      stroke-linecap="round"
+      stroke-linejoin="round"
+      class="feather feather-arrow-left"
+    >
+      <line x1="19" y1="12" x2="5" y2="12" />
+      <polyline points="12 19 5 12 12 5" />
+    </svg>
+    Volver
+  </button>
+
+  <h1 class="text-2xl font-bold text-black mb-4 flex justify-center">
+    {{ categoryName() }}
+  </h1>
+  <div class="grid grid-cols-1 p-2 mx-6 sm:grid-cols-2 xl:grid-cols-4 gap-6">
+    @for (product of filteredProducts(); track product.id) {
+    <div>
+      <product-card [products]="[product]"></product-card>
+    </div>
+    } @if (filteredProducts().length === 0 && !loading()) {
+    <div class="text-gray-500 col-span-full">
+      No hay productos en esta categoría.
+    </div>
+    } @if (loading()) {
+    <div class="text-gray-500 col-span-full">Cargando productos...</div>
+    }
+  </div>
+</div>

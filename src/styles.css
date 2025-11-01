@@ -1,0 +1,59 @@
+@import "tailwindcss";
+@plugin "daisyui" {
+  themes: light --default, light, dark, cupcake, bumblebee, emerald, corporate, synthwave,
+      retro, cyberpunk, valentine, halloween, garden, forest, aqua,
+      lofi, pastel, fantasy, wireframe, black, luxury, dracula,
+      cmyk, autumn, twilight, acid, lemonade, night, coffee, winter,
+      dim, nord, sunset;
+}
+
+@theme {
+  --color-bg-base: #E0FFFF;
+  --color-primary-dark: #0A0F1C; 
+  --color-accent-color: #00FFE0;
+  --color-bg-surface: #A3EBFB; 
+  --color-text: #000000 
+}
+
+html,
+body {
+  height: 100%;
+}
+body {
+  margin: 0;
+  font-family: Roboto, "Helvetica Neue", sans-serif;
+}
+
+/* Scrollbar personalizado */
+.scrollbar-thin {
+  scrollbar-width: thin;
+}
+
+.scrollbar-thumb-gray-400::-webkit-scrollbar-thumb {
+  background-color: #9ca3af;
+  border-radius: 6px;
+}
+
+.scrollbar-track-gray-200::-webkit-scrollbar-track {
+  background-color: #e5e7eb;
+}
+
+.scrollbar-thin::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+.animate-fadeIn {
+  animation: fadeIn 0.3s ease-in;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}

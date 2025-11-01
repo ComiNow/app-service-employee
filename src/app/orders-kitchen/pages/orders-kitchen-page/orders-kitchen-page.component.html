@@ -1,0 +1,40 @@
+<div class="kitchen-page-container">
+  <div class="orders-header">
+    <h1 class="orders-title">Lista de pedidos</h1>
+    <span class="orders-count-badge">{{ filteredOrders().length }}</span>
+  </div>
+
+  @if (ordersResource.isLoading()) {
+  <div class="flex justify-center items-center h-64">
+    <span class="loading loading-spinner loading-lg"></span>
+  </div>
+  } @if (ordersResource.hasValue()) {
+  <div class="orders-masonry-grid">
+    @for (order of filteredOrders(); track order.id) {
+    <div class="order-card-wrapper">
+      <order-card
+        [order]="order"
+        (orderDelivered)="onOrderDelivered($event)"
+        (orderClicked)="onOrderClicked($event)"
+      >
+      </order-card>
+    </div>
+    }
+  </div>
+
+  @if (filteredOrders().length === 0) {
+  <div class="empty-state">
+    <div class="empty-icon">☕</div>
+    <h3 class="empty-title">No hay órdenes pendientes</h3>
+    <p class="empty-message">Todas las órdenes han sido procesadas</p>
+  </div>
+  } } @if (showDetailModal()) {
+  <order-detail-modal
+    [order]="selectedOrder"
+    [isVisible]="showDetailModal"
+    (modalClosed)="onModalClosed()"
+    (orderDelivered)="onOrderDelivered($event)"
+  >
+  </order-detail-modal>
+  }
+</div>

@@ -1,0 +1,89 @@
+<h2 class="font-bold text-lg mb-4 flex justify-center text-black">
+  Número de mesa
+</h2>
+<div class="flex justify-center items-center mb-2">
+  <select
+    [(ngModel)]="selectedTable"
+    name="tableNumber"
+    class="p-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-gray-500 bg-white"
+  >
+    <option [value]="1">1</option>
+    <option [value]="2">2</option>
+    <option [value]="3">3</option>
+    <option [value]="4">4</option>
+    <option [value]="5">5</option>
+  </select>
+</div>
+
+<h2 class="font-bold text-lg mb-4 flex justify-center text-black">
+  Método de pago
+</h2>
+@for (method of paymentMethods; track method.id) {
+  <button
+    type="button"
+    (click)="selectPaymentMethod(method.id)"
+    [ngClass]="{
+      'bg-accent-color text-primary-dark border-2 border-primary-dark': selectedPaymentMethod === method.id,
+      'bg-primary-dark hover:bg-primborder-primary-dark-hover text-accent-color': selectedPaymentMethod !== method.id
+    }"
+    class="rounded-xl cursor-pointer px-4 py-1 font-bold w-full mb-2 transition-colors"
+  >
+    {{ method.name }}
+  </button>
+}
+<div class="p-2">
+  <div
+    class="flex flex-col items-center justify-center font-bold text-black text-lg mb-2"
+  >
+    <p>Total:</p>
+    <p>$ {{ cartService.totalAmount() | number }}</p>
+  </div>
+  <button
+    type="submit"
+    class="bg-primary-dark  hover:bg-primborder-primary-dark-hover text-accent-color rounded-xl cursor-pointer px-4 py-1 font-bold w-full mb-2"
+    (click)="finalizeOrder()"
+  >
+    Finalizar
+  </button>
+  <button
+    type="button"
+    class="border border-primary-dark text-primary-dark rounded-xl cursor-pointer px-4 py-1 font-bold w-full hover:bg-red-50"
+    (click)="backToCart()"
+  >
+    Volver al carrito
+  </button>
+</div>
+
+<div class="modal text-center" [class.modal-open]="showSuccessModal()">
+  <div class="modal-box">
+    <h3 class="font-bold text-lg text-black">¡Pedido realizado con éxito!</h3>
+  </div>
+</div>
+
+<div class="modal text-center" [class.modal-open]="showTableErrorModal()">
+  <div class="modal-box">
+    <h3 class="font-bold text-lg text-red-600">Error en el pedido</h3>
+    <p class="py-4 text-black">Por favor, selecciona un número de mesa.</p>
+    <div class="modal-action justify-center">
+      <button
+        (click)="closeErrorModals()"
+        class="bg-primborder-primary-dark hover:bg-primborder-primary-dark-hover text-black rounded-xl cursor-pointer px-4 py-1 font-bold">
+        Entendido
+      </button>
+    </div>
+  </div>
+</div>
+
+<div class="modal text-center" [class.modal-open]="showPaymentErrorModal()">
+  <div class="modal-box">
+    <h3 class="font-bold text-lg text-red-600">Error en el pedido</h3>
+    <p class="py-4 text-black">Por favor, selecciona un método de pago.</p>
+    <div class="modal-action justify-center">
+      <button
+        (click)="closeErrorModals()"
+        class="bg-primborder-primary-dark hover:bg-primborder-primary-dark-hover text-black rounded-xl cursor-pointer px-4 py-1 font-bold">
+        Entendido
+      </button>
+    </div>
+  </div>
+</div>

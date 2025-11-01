@@ -1,0 +1,82 @@
+<div class="kitchen-order-card" (click)="onCardClick()">
+  <!-- Header con mesa y estado -->
+  <div class="card-header">
+    <div class="mesa-info">
+      <h3 class="mesa-title">MESA #{{ order().table }}</h3>
+      <div class="order-meta">
+        <span class="order-number">Orden #{{ order().id }}</span>
+        <span class="order-time">{{
+          order().paidAt | date : "dd MMM yyyy, HH:mm a"
+        }}</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Products List -->
+  <div class="products-section">
+    <div class="products-scroll-container" [class.scrollable]="hasMoreItems()">
+      @for (item of getVisibleItems(); track item.id) {
+      <div class="product-item">
+        <div class="product-image">
+          <img
+            [src]="item.productImage | productImage"
+            [alt]="item.productName"
+            class="product-img"
+          />
+        </div>
+        <div class="product-details">
+          <span class="product-name">{{ item.productName }}</span>
+          <span class="product-price"
+            >${{ item.price | number : "1.0-0" }}</span
+          >
+        </div>
+        <div class="product-quantity">
+          <span class="quantity-badge">Cant: {{ item.quantity }}</span>
+        </div>
+      </div>
+      }
+
+      <!-- Mostrar más productos si están ocultos -->
+      @if (hasMoreItems()) { @for (item of
+      order().items.slice(maxVisibleItems()); track item.id) {
+      <div class="product-item">
+        <div class="product-image">
+          <img
+            [src]="item.productImage | productImage"
+            [alt]="item.productName"
+            class="product-img"
+          />
+        </div>
+        <div class="product-details">
+          <span class="product-name">{{ item.productName }}</span>
+          <span class="product-price"
+            >${{ item.price | number : "1.0-0" }}</span
+          >
+        </div>
+        <div class="product-quantity">
+          <span class="quantity-badge">Cant: {{ item.quantity }}</span>
+        </div>
+      </div>
+      } }
+    </div>
+  </div>
+
+  <!-- Footer con total y botón -->
+  <div class="card-footer">
+    <div class="order-summary">
+      <div class="summary-row">
+        <span class="summary-label">Items: {{ order().totalItems }}</span>
+      </div>
+      <div class="summary-row total-row">
+        <span class="total-label">Valor del pedido:</span>
+        <span class="total-amount"
+          >${{ order().totalAmount | number : "1.0-0" }}</span
+        >
+      </div>
+    </div>
+
+    <button class="deliver-button" (click)="onMarkAsDelivered($event)">
+      <span class="button-text">Listo!</span>
+    </button>
+  </div>
+</div>

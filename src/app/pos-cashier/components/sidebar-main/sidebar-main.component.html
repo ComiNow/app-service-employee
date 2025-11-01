@@ -1,0 +1,46 @@
+<h2 class="font-bold text-xl mb-4 flex justify-center text-black">Orden</h2>
+@if (cartService.cartItems().length > 0) {
+<div class="mb-4">
+  @for (item of cartService.cartItems(); track item.product.id) {
+  <cart-item [item]="item" />
+  }
+</div>
+
+<div class="mt-6 p-4">
+  <div
+    class="flex flex-col items-center justify-center font-bold text-black text-lg mb-2"
+  >
+    <p>Total:</p>
+    <p>$ {{ cartService.totalAmount() | number }}</p>
+  </div>
+  <button
+    class="bg-primary-dark text-accent-color rounded-xl cursor-pointer px-4 py-3 font-bold w-full mb-2" (click)="goToPayment()"
+  >
+    Ordenar
+  </button>
+  <button
+    class="border border-primary-dark text-primary-dark rounded-xl cursor-pointer px-4 py-3 font-bold w-full hover:bg-red-50"
+    (click)="cartService.clearCart()"
+  >
+    Vaciar Carrito
+  </button>
+</div>
+} @else {
+<div class="text-center text-gray-600 py-8">
+  <svg
+    xmlns="http://www.w3.org/2000/svg"
+    class="w-16 h-16 text-gray-400 mx-auto mb-4"
+    fill="none"
+    viewBox="0 0 24 24"
+    stroke="currentColor"
+  >
+    <path
+      stroke-linecap="round"
+      stroke-linejoin="round"
+      stroke-width="2"
+      d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"
+    />
+  </svg>
+  <p>No has ordenado aún.</p>
+</div>
+}

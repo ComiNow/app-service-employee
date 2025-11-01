@@ -1,0 +1,207 @@
+<div class="flex-grow flex justify-center items-center mt-4">
+  <div
+    class="p-6 rounded-2xl w-full max-w-160 mt-20 relative"
+  >
+    <button
+      type="button"
+      [routerLink]="['/products']"
+      routerLinkActive="router-link-active"
+      class="absolute left-6 top-6 flex items-center rounded-2xl p-2 text-gray-500 font-bold hover:text-black cursor-pointer"
+    >
+      <svg
+        xmlns="http://www.w3.org/2000/svg"
+        width="24"
+        height="24"
+        fill="none"
+        stroke="currentColor"
+        stroke-width="3"
+        stroke-linecap="round"
+        stroke-linejoin="round"
+        class="feather feather-arrow-left"
+      >
+        <line x1="19" y1="12" x2="5" y2="12" />
+        <polyline points="12 19 5 12 12 5" />
+      </svg>
+      Volver
+    </button>
+
+    <h2 class="text-center text-black font-bold text-2xl mb-6">Producto</h2>
+
+    <form
+      [formGroup]="productForm"
+      (ngSubmit)="onSubmit()"
+      class="space-y-6 p-5 mt-4"
+    >
+      <div class="flex space-x-8">
+        <label class="flex-1">
+          <span class="block text-sm font-semibold text-black mb-1"
+            >Nombre del producto</span
+          >
+          <input
+            type="text"
+            formControlName="name"
+            [class.border-red-500]="formUtils.isValidField(productForm, 'name')"
+            class="w-full bg-neutral-100 border border-gray-500 border-b-2 rounded-md p-2 focus:outline-none focus:ring-2 focus:ring-gray-400"
+          />
+          @if ( formUtils.isValidField(productForm, 'name')) {
+          <div class="text-center">
+            <label class="form-text text-error">
+              {{ formUtils.getFieldError(productForm, "name") }}
+            </label>
+          </div>
+          }
+        </label>
+
+        <div class="flex-1">
+          <label class="block text-sm font-semibold text-black mb-1"
+            >Categoría</label
+          >
+          <select
+            formControlName="categoryId"
+            [class.border-red-500]="
+              formUtils.isValidField(productForm, 'categoryId')
+            "
+            class="w-full bg-neutral-100 border border-gray-500 border-b-2 rounded-md p-2 focus:outline-none focus:ring-2 focus:ring-gray-400"
+          >
+            <option value="0">Seleccione una categoría</option>
+            @if(categories.length > 0) { @for (category of categories; track
+            category.id) {
+            <option [value]="category.id">{{ category.name }}</option>
+            } }
+          </select>
+        </div>
+      </div>
+
+      <div class="flex space-x-8">
+        <div class="flex-1">
+          <label class="block text-sm font-semibold text-black mb-1"
+            >Precio</label
+          >
+          <input
+            type="number"
+            formControlName="price"
+            [class.border-red-500]="
+              formUtils.isValidField(productForm, 'price')
+            "
+            class="w-full bg-neutral-100 border border-gray-500 border-b-2 rounded-md p-2 focus:outline-none focus:ring-2 focus:ring-gray-400"
+          />
+          @if ( formUtils.isValidField(productForm, 'price')) {
+          <div class="text-center">
+            <label class="form-text text-error">
+              {{ formUtils.getFieldError(productForm, "price") }}
+            </label>
+          </div>
+          }
+        </div>
+
+        <div class="flex-1">
+          <label class="block text-sm font-semibold text-black mb-1"
+            >Stock</label
+          >
+          <input
+            type="number"
+            formControlName="stock"
+            [class.border-red-500]="
+              formUtils.isValidField(productForm, 'stock')
+            "
+            class="w-full bg-neutral-100 border border-gray-500 border-b-2 rounded-md p-2 focus:outline-none focus:ring-2 focus:ring-gray-400"
+          />
+          @if ( formUtils.isValidField(productForm, 'stock')) {
+          <div class="text-center">
+            <label class="form-text text-error">
+              {{ formUtils.getFieldError(productForm, "stock") }}
+            </label>
+          </div>
+          }
+        </div>
+      </div>
+
+      <div class="flex justify-center mt-4">
+        <div
+          class="relative w-30 h-30 bg-white border border-gray-500 border-b-2 rounded-full shadow-inner flex items-center justify-center overflow-hidden cursor-pointer"
+        >
+          <input
+            #fileInput
+            type="file"
+            accept="image/*"
+            class="absolute w-full h-full opacity-0 cursor-pointer"
+            (change)="onFilesChanged($event)"
+          />
+
+          @if (hasImageToShow()) {
+          <img
+            [src]="getImageSource()"
+            alt="Imagen de producto"
+            class="object-cover w-full h-full rounded-full"
+          />
+          }
+          @else {
+          <svg
+            width="64"
+            height="64"
+            viewBox="0 0 64 64"
+            fill="none"
+            xmlns="http://www.w3.org/2000/svg"
+          >
+            <rect
+              x="4"
+              y="4"
+              width="56"
+              height="56"
+              rx="8"
+              stroke="black"
+              stroke-width="2"
+              fill="white"
+            />
+            <path d="M40 20L44 24L26 42L20 44L22 38L40 20Z" fill="black" />
+            <path
+              d="M43 21L47 25"
+              stroke="black"
+              stroke-width="2"
+              stroke-linecap="round"
+            />
+          </svg>
+          }
+        </div>
+      </div>
+
+      @if (productForm.dirty || imageChanged()) {
+      <div class="flex justify-center mt-6 space-x-6">
+        <button
+          type="button"
+          [routerLink]="['/products']"
+          class="px-6 py-2 rounded-full border border-primary-dark font-bold text-primary-dark hover:bg-gray-200 cursor-pointer"
+        >
+          Cancelar
+        </button>
+        <button
+          type="submit"
+          class="px-6 py-2 rounded-full bg-primary-dark text-accent-color font-bold hover:bg-button-gray-hover cursor-pointer"
+        >
+          Guardar
+        </button>
+      </div>
+      }
+    </form>
+
+    <div
+      class="modal text-center"
+      [class.modal-open]="showSuccessModalUpdate()"
+    >
+      <div class="modal-box">
+        <h3 class="font-bold text-lg">¡Producto actualizado!</h3>
+        <p class="py-4">Tu producto se ha actualizado correctamente.</p>
+      </div>
+    </div>
+
+    <div
+      class="modal text-center"
+      [class.modal-open]="showSuccessModalCreate()"
+    >
+      <div class="modal-box">
+        <h3 class="font-bold text-lg">¡Producto creado!</h3>
+        <p class="py-4">Tu producto se ha creado correctamente.</p>
+      </div>
+    </div>
+  </div>
+</div>

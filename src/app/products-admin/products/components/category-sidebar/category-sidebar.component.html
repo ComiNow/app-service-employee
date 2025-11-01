@@ -1,0 +1,133 @@
+<div
+  class="fixed top-16 left-0 w-72 h-[calc(100vh-4rem)]  bg-primary-dark shadow-md z-30 transition-transform duration-300 ease-in-out flex flex-col justify-between"
+>
+  <h1 class="text-center pt-6 text-2xl text-accent-color font-bold">Categorías</h1>
+
+  <ul
+    class="p-6 flex-1 space-y-3 overflow-y-auto text-lg text-accent-color font-medium"
+  >
+    <li
+      class="px-3 py-2 rounded-md cursor-pointer hover:bg-hover-primary-dark transition"
+      [class.bg-hover-primary-dark]="activeCategoryId() === null"
+    >
+      <a class="block w-full h-full" routerLink="/products/categories"
+        >Todas las Categorías</a
+      >
+    </li>
+
+    @for (category of categories(); track category.id) {
+    <li
+      class="px-3 py-2 rounded-md cursor-pointer hover:bg-hover-primary-dark transition flex justify-between items-center"
+      [class.bg-hover-primary-dark]="isCategoryActive(category.id)"
+    >
+      <a [routerLink]="['/products/categories', category.id]" class="flex-1">
+        {{ category.name }}
+      </a>
+      <button
+        class="text-gray-400 hover:text-white cursor-pointer"
+        (click)="onDeleteCategory(category.id)"
+      >
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          class="w-5 h-5"
+          fill="none"
+          viewBox="0 0 24 24"
+          stroke="currentColor"
+        >
+          <path
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            stroke-width="2"
+            d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5-4h4a1 1 0 011 1v1H9V4a1 1 0 011-1zm-7 4h18"
+          />
+        </svg>
+      </button>
+
+      <button
+        class="text-gray-400 hover:text-white cursor-pointer"
+        [routerLink]="['category', category.id]"
+      >
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          class="w-5 h-5"
+          fill="none"
+          viewBox="0 0 24 24"
+          stroke="currentColor"
+        >
+          <path
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            stroke-width="2"
+            d="M11 5h2M12 4v2m7.207 1.793a1 1 0 010 1.414l-10 10a1 1 0 01-.414.242l-4 1a1 1 0 01-1.242-1.242l1-4a1 1 0 01.242-.414l10-10a1 1 0 011.414 0z"
+          />
+        </svg>
+      </button>
+    </li>
+    }
+  </ul>
+
+    <button
+      class="m-6 px-3 py-2 text-center rounded-md font-bold bg-accent-color text-primary-dark cursor-pointer hover:bg-button-gray-hover transition"
+      routerLink="category/new"
+    >
+      Crear categoría
+    </button>
+
+</div>
+
+<div class="modal" [class.modal-open]="showConfirmDeleteModal()">
+  <div class="modal-box">
+    <h3 class="font-bold text-lg align-center">¿Estás seguro?</h3>
+    <p class="text-lg align-center">
+      Esta acción eliminará la categoría permanentemente.
+    </p>
+    <div class="modal-action justify-center">
+      <button
+        class="btn bg-button-gray hover:to-button-gray-hover"
+        (click)="confirmDelete()"
+      >
+        Eliminar
+      </button>
+      <button class="btn" (click)="showConfirmDeleteModal.set(false)">
+        Cancelar
+      </button>
+    </div>
+  </div>
+</div>
+
+<div class="modal text-center" [class.modal-open]="showSuccessModalDelete()">
+  <div class="modal-box">
+    <h3 class="font-bold text-lg">¡Categoría eliminada!</h3>
+    <p class="font-bold text-lg">Tu categoría se ha eliminado correctamente.</p>
+  </div>
+</div>
+
+<div class="modal text-center" [class.modal-open]="showWarningModal()">
+  <div class="modal-box">
+    <h3 class="font-bold text-lg text-red-600">¡Advertencia!</h3>
+    <p class="font-bold text-lg">
+      No puedes eliminar esta categoría porque tiene productos asociados.
+    </p>
+    <br>
+    <p class="">
+      Por favor, elimina los productos de esta categoría o reasígnalos antes de intentar eliminarla.
+    </p>
+    <div class="modal-action justify-center mt-4">
+      <button class="btn" (click)="showWarningModal.set(false)">
+        Entendido
+      </button>
+    </div>
+  </div>
+</div>
+
+<div class="modal text-center" [class.modal-open]="errorMessage() !== null">
+  <div class="modal-box">
+    <h3 class="font-bold text-lg text-red-600">Error</h3>
+    <p class="font-bold text-lg mt-2">{{ errorMessage() }}</p>
+    <div class="modal-action justify-center mt-4">
+      <button class="btn" (click)="errorMessage.set(null)">
+        Cerrar
+      </button>
+    </div>
+  </div>
+</div>

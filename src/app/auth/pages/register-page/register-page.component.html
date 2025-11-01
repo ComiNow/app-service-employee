@@ -1,0 +1,143 @@
+<h2 class="text-3xl font-bold mt-6 text-center text-black">
+  Crear cuenta
+</h2>
+<div class="flex items-center justify-center">
+
+  <div class="flex flex-col md:flex-row rounded-2xl px-6 gap-8">
+
+    <div class="flex flex-col items-center justify-center bg-accent-color rounded-3xl p-6 my-5 text-center w-90">
+      <p class="font-bold text-xl text-black p-7">
+        Gracias por confiar en ComiNow. Estamos aquí para ayudarte a crecer, simplificar tu operación y darles a tus
+        clientes la mejor experiencia.
+      </p>
+      <img src="/assets/logo-welcome.png" alt="Coffee Now" class="w-38 h-auto mb-4 drop-shadow-md" />
+    </div>
+
+    <div class="flex-1 flex flex-col justify-center items-center bg-base rounded-3xl p-6 min-w-[360px]">
+
+      <form class="w-full max-w-xs space-y-1" [formGroup]="registerForm" (ngSubmit)="continueToNextPage()">
+
+        <label class="label text-primary-dark text-sm">Tipo de identificación</label>
+        <label class="select border-primary-dark">
+          <select class="select select-sm text-primary-dark" formControlName="identificationType">
+            @for (idType of identificationType; track idType.id) {
+            <option [value]="idType.id">{{ idType.name }}</option>
+            }
+          </select>
+        </label>
+        @if ( formUtils.isValidField(registerForm, 'identificationType')) {
+        <div class="text-center">
+          <label class="form-text text-error">
+            {{ formUtils.getFieldError(registerForm, "identificationType") }}
+          </label>
+        </div>
+        }
+
+        <label class="label text-primary-dark text-sm">Número de identificación</label>
+        <label class="floating-label">
+          <input type="text" class="input input-sm text-primary-dark border-primary-dark"
+            formControlName="identificationNumber" />
+          @if ( formUtils.isValidField(registerForm, 'identificationNumber')) {
+          <div class="text-center">
+            <label class="form-text text-error">
+              {{
+              formUtils.getFieldError(registerForm, "identificationNumber")
+              }}
+            </label>
+          </div>
+          }
+        </label>
+
+        <label class="label text-primary-dark text-sm">Nombre completo</label>
+        <label class="floating-label">
+          <input type="text" class="input input-sm text-primary-dark border-primary-dark" formControlName="fullName" />
+          @if ( formUtils.isValidField(registerForm, 'fullName')) {
+          <div class="text-center">
+            <label class="form-text text-error">
+              {{ formUtils.getFieldError(registerForm, "fullName") }}
+            </label>
+          </div>
+          }
+        </label>
+
+        <label class="label text-primary-dark text-sm">Numero de teléfono</label>
+        <label class="floating-label">
+          <input type="text" class="input input-sm text-primary-dark border-primary-dark"
+            formControlName="phoneNumber" />
+          @if ( formUtils.isValidField(registerForm, 'phoneNumber')) {
+          <div class="text-center">
+            <label class="form-text text-error">
+              {{ formUtils.getFieldError(registerForm, "phoneNumber") }}
+            </label>
+          </div>
+          }
+        </label>
+
+        <label class="label text-primary-dark text-sm">Correo electrónico</label>
+        <label class="floating-label">
+          <input type="text" class="input input-sm text-primary-dark border-primary-dark" formControlName="email" />
+          @if ( formUtils.isValidField(registerForm, 'email')) {
+          <div class="text-center">
+            <label class="form-text text-error">
+              {{ formUtils.getFieldError(registerForm, "email") }}
+            </label>
+          </div>
+          }
+        </label>
+
+
+
+
+        <label class="label text-primary-dark text-sm">Contraseña</label>
+        <label class="floating-label">
+          <input type="password" class="input input-sm text-primary-dark border-primary-dark"
+            formControlName="password" />
+          @if ( formUtils.isValidField(registerForm, 'password')) {
+          <div class="text-center">
+            <label class="form-text text-error">
+              {{ formUtils.getFieldError(registerForm, "password") }}
+            </label>
+          </div>
+          }
+        </label>
+        <label class="label text-primary-dark text-sm">Confirmar contraseña</label>
+        <label class="floating-label">
+          <input type="password" class="input input-sm text-primary-dark border-primary-dark"
+            formControlName="password2" />
+          @if ( formUtils.isValidField(registerForm, 'password2')) {
+          <div class="text-center">
+            <label class="form-text text-error">
+              {{ formUtils.getFieldError(registerForm, "password2") }}
+            </label>
+          </div>
+          }
+          <div class="text-center">
+            @if( registerForm.errors &&
+            registerForm.controls['password2'].touched ) {
+            <label class="form-text text-error">
+              Las contraseñas no son iguales
+            </label>
+            }
+          </div>
+        </label>
+
+
+      </form>
+
+    </div>
+  </div>
+</div>
+
+
+<div class="text-center">
+  <button type="button" (click)="continueToNextPage()"
+    class="mt-4 px-6 py-2 bg-primary-dark text-accent-color font-semibold rounded-4xl transition duration-300 cursor-pointer">
+    Continuar
+  </button><br>
+  <span>
+    ¿Ya tienes una cuenta?
+    <a routerLink="/auth/login" class="text-primary-dark font-semibold hover:underline cursor-pointer">
+      Iniciar sesión
+    </a>
+  </span>
+</div>

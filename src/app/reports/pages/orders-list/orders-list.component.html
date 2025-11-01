@@ -1,0 +1,19 @@
+<div class="flex pt-16 h-[calc(100vh-4rem)] z-100">
+  <div class="flex-1 overflow-auto p-4">
+
+    <div class="flex justify-center w-full mb-5">
+      <date-range-picker (rangeSelected)="onDateRangeSelected($event)"></date-range-picker>
+    </div>
+
+    <div class="rounded-2xl shadow p-4" style="background-color: #F0EDED">
+      <div class="flex justify-start items-center mb-4">
+        <h2 class="text-xl font-bold text-center px-10">
+          Historial Órdenes
+          <span class="text-sm text-gray-500 badge">{{filtersOrders().length}}</span>
+        </h2>
+      </div>
+      <orders-table [orders]="filtersOrders() || []"></orders-table>
+    </div>
+
+  </div>
+</div>

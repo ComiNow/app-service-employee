@@ -1,0 +1,10 @@
+@if(categoryResource.isLoading()){
+  <div class="flex justify-center items-center h-screen">
+    <span class="loading loading-spinner loading-lg"></span>
+  </div>
+
+}
+
+@if(categoryResource.hasValue()){
+  <category-details [category]="categoryResource.value()!"></category-details>
+}

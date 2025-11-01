@@ -1,0 +1,216 @@
+<div class="flex flex-col items-center justify-center p-4 gap-8">
+  <div
+    class="w-full md:w-2/3 flex flex-col items-center justify-start p-4 bg-white shadow-lg rounded-lg"
+  >
+    <h2 class="text-2xl font-bold text-primary-dark mb-6">
+      Crea tu cuenta de negocio
+    </h2>
+
+    <div
+      class="flex flex-col md:flex-row items-start justify-center w-full gap-8"
+    >
+      <div
+        class="flex flex-col items-center justify-center bg-accent-color rounded-3xl p-6 my-5 text-center w-full md:w-1/2"
+      >
+        <p class="font-bold text-xl text-black p-7">
+          ¡Es hora de personalizar tu negocio en ComiNow! <br />
+          Crea tu cuenta y empieza a darle a tus clientes la mejor experiencia.
+        </p>
+        <img
+          src="/assets/logo-welcome.png"
+          alt="ComiNow"
+          class="w-38 h-auto mb-4 drop-shadow-md"
+        />
+      </div>
+
+      <form
+        class="w-full md:w-1/2"
+        [formGroup]="businessForm"
+        (ngSubmit)="onSubmitBusinessForm()"
+      >
+        <div class="mb-4">
+          <label class="label text-primary-dark text-sm"
+            >Nombre de tu negocio</label
+          >
+          <label class="floating-label">
+            <input
+              type="text"
+              formControlName="businessName"
+              class="input input-sm text-primary-dark border-primary-dark"
+              placeholder="Ej: Mi Tienda Online"
+            />
+            @if (formUtils.isValidField(businessForm, 'businessName')) {
+            <div class="text-center">
+              <label class="form-text text-error">
+                {{ formUtils.getFieldError(businessForm, "businessName") }}
+              </label>
+            </div>
+            }
+          </label>
+        </div>
+        <div class="mb-4">
+          <label class="label text-primary-dark text-sm"
+            >Número telefónico</label
+          >
+          <label class="floating-label">
+            <input
+              type="tel"
+              formControlName="businessPhoneNumber"
+              class="input input-sm text-primary-dark border-primary-dark"
+              placeholder="Ej: +57 300 1234567"
+            />
+            @if (formUtils.isValidField(businessForm, 'businessPhoneNumber')) {
+            <div class="text-center">
+              <label class="form-text text-error">
+                {{
+                  formUtils.getFieldError(businessForm, "businessPhoneNumber")
+                }}
+              </label>
+            </div>
+            }
+          </label>
+        </div>
+        <div class="mb-4">
+          <label class="label text-primary-dark text-sm"
+            >Email de tu negocio</label
+          >
+          <label class="floating-label">
+            <input
+              type="email"
+              formControlName="businessEmail"
+              class="input input-sm text-primary-dark border-primary-dark"
+              placeholder="Ej: info@mitienda.com"
+            />
+            @if (formUtils.isValidField(businessForm, 'businessEmail')) {
+            <div class="text-center">
+              <label class="form-text text-error">
+                {{ formUtils.getFieldError(businessForm, "businessEmail") }}
+              </label>
+            </div>
+            }
+          </label>
+        </div>
+        <div class="mb-4">
+          <label class="label text-primary-dark text-sm">Departamento</label>
+          <label class="floating-label">
+            <select
+              formControlName="departmentId"
+              class="select select-sm select-bordered text-primary-dark border-primary-dark"
+              [disabled]="loadingDepartments()"
+            >
+              <option [ngValue]="null" disabled selected>
+                {{
+                  loadingDepartments()
+                    ? "Cargando departamentos..."
+                    : "Selecciona un departamento"
+                }}
+              </option>
+              @for (dept of departments; track dept.id) {
+              <option [ngValue]="dept.id">{{ dept.name }}</option>
+              }
+            </select>
+            @if (formUtils.isValidField(businessForm, 'department')) {
+            <div class="text-center">
+              <label class="form-text text-error">
+                {{ formUtils.getFieldError(businessForm, "department") }}
+              </label>
+            </div>
+            }
+          </label>
+        </div>
+
+        <div class="mb-4">
+          <label class="label text-primary-dark text-sm">Ciudad</label>
+          <label class="floating-label">
+            <select
+              formControlName="city"
+              class="select select-sm select-bordered text-primary-dark border-primary-dark"
+              [disabled]="
+                !businessForm.get('departmentId')?.value || loadingCities()
+              "
+            >
+              <option value="" disabled selected>
+                {{
+                  loadingCities()
+                    ? "Cargando ciudades..."
+                    : !businessForm.get("departmentId")?.value
+                    ? "Primero selecciona un departamento"
+                    : "Selecciona una ciudad"
+                }}
+              </option>
+              @for (city of cities; track city.id) {
+              <option [value]="city.name">{{ city.name }}</option>
+              }
+            </select>
+            @if (formUtils.isValidField(businessForm, 'city')) {
+            <div class="text-center">
+              <label class="form-text text-error">
+                {{ formUtils.getFieldError(businessForm, "city") }}
+              </label>
+            </div>
+            }
+          </label>
+        </div>
+
+        <div class="mb-4">
+          <label class="label text-primary-dark text-sm">Código postal</label>
+          <label class="floating-label">
+            <input
+              type="text"
+              formControlName="postalCode"
+              class="input input-sm text-primary-dark border-primary-dark"
+              placeholder="Ej: 050010"
+            />
+            @if (formUtils.isValidField(businessForm, 'postalCode')) {
+            <div class="text-center">
+              <label class="form-text text-error">
+                {{ formUtils.getFieldError(businessForm, "postalCode") }}
+              </label>
+            </div>
+            }
+          </label>
+        </div>
+        <div class="mb-4">
+          <label class="label text-primary-dark text-sm">Dirección</label>
+          <label class="floating-label">
+            <input
+              type="text"
+              formControlName="address"
+              class="input input-sm text-primary-dark border-primary-dark"
+              placeholder="Ej: Calle 10 # 20-30"
+            />
+            @if (formUtils.isValidField(businessForm, 'address')) {
+            <div class="text-center">
+              <label class="form-text text-error">
+                {{ formUtils.getFieldError(businessForm, "address") }}
+              </label>
+            </div>
+            }
+          </label>
+        </div>
+        <button
+          type="submit"
+          class="mt-4 px-6 py-2 bg-primary-dark text-accent-color font-semibold rounded-4xl transition duration-300 cursor-pointer text-center"
+        >
+          Continuar</button
+        ><br />
+        <span class="text-center w-full">
+          ¿Ya tienes una cuenta?
+          <a
+            routerLink="/auth/login"
+            class="text-primary-dark font-semibold hover:underline cursor-pointer"
+          >
+            Iniciar sesión
+          </a>
+        </span>
+      </form>
+    </div>
+  </div>
+</div>
+
+<div class="modal text-center" [class.modal-open]="showSuccessModal()">
+  <div class="modal-box">
+    <h3 class="font-bold text-lg">¡Cuenta creada!</h3>
+    <p class="py-4">Tu cuenta de negocio se ha guardado con éxito.</p>
+  </div>
+</div>

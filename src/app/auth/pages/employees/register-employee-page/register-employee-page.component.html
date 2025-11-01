@@ -1,0 +1,134 @@
+<app-navbar /><br><br><br>
+
+<h2 class="text-3xl font-bold mt-6 text-center text-black">
+  Registrar empleado
+</h2>
+<div class="flex items-center justify-center">
+
+  <div class="flex flex-col md:flex-row rounded-2xl px-6 gap-8">
+
+    <div class="flex-1 flex flex-col justify-center items-center bg-base rounded-3xl p-6 min-w-[360px]">
+
+      <form class="w-full max-w-xs space-y-1" [formGroup]="registerForm" (ngSubmit)="onSubmit()">
+
+        <label class="label text-primary-dark text-sm">Nombre completo</label>
+        <label class="floating-label">
+          <input type="text" class="input input-sm text-primary-dark border-primary-dark" formControlName="fullName" />
+          @if ( formUtils.isValidField(registerForm, 'fullName')) {
+          <div class="text-center">
+            <label class="form-text text-error">
+              {{ formUtils.getFieldError(registerForm, "fullName") }}
+            </label>
+          </div>
+          }
+        </label>
+
+
+        <label class="label text-primary-dark text-sm">Número de identificación</label>
+        <label class="floating-label">
+          <input type="text" class="input input-sm text-primary-dark border-primary-dark"
+            formControlName="identificationNumber" />
+          @if ( formUtils.isValidField(registerForm, 'identificationNumber')) {
+          <div class="text-center">
+            <label class="form-text text-error">
+              {{
+              formUtils.getFieldError(registerForm, "identificationNumber")
+              }}
+            </label>
+          </div>
+          }
+        </label>
+
+        <label class="label text-primary-dark text-sm">Correo electrónico</label>
+        <label class="floating-label">
+          <input type="text" class="input input-sm text-primary-dark border-primary-dark" formControlName="email" />
+          @if ( formUtils.isValidField(registerForm, 'email')) {
+          <div class="text-center">
+            <label class="form-text text-error">
+              {{ formUtils.getFieldError(registerForm, "email") }}
+            </label>
+          </div>
+          }
+        </label>
+
+        <label class="label text-primary-dark text-sm">Cargo</label>
+        <label class="select border-primary-dark">
+          <select class="select select-sm text-primary-dark" formControlName="cargos">
+            @for (cargo of cargos; track cargo.id) {
+            <option [value]="cargo.id">{{ cargo.name }}</option>
+            }
+          </select>
+        </label>
+        @if ( formUtils.isValidField(registerForm, 'cargos')) {
+        <div class="text-center">
+          <label class="form-text text-error">
+            {{ formUtils.getFieldError(registerForm, "cargos") }}
+          </label>
+        </div>
+        }
+
+        <label class="label text-primary-dark text-sm">Contraseña</label>
+        <label class="floating-label">
+          <input type="password" class="input input-sm text-primary-dark border-primary-dark"
+            formControlName="password" />
+          @if ( formUtils.isValidField(registerForm, 'password')) {
+          <div class="text-center">
+            <label class="form-text text-error">
+              {{ formUtils.getFieldError(registerForm, "password") }}
+            </label>
+          </div>
+          }
+        </label>
+        <label class="label text-primary-dark text-sm">Confirmar contraseña</label>
+        <label class="floating-label">
+          <input type="password" class="input input-sm text-primary-dark border-primary-dark"
+            formControlName="password2" />
+          @if ( formUtils.isValidField(registerForm, 'password2')) {
+          <div class="text-center">
+            <label class="form-text text-error">
+              {{ formUtils.getFieldError(registerForm, "password2") }}
+            </label>
+          </div>
+          }
+          <div class="text-center">
+            @if( registerForm.errors &&
+            registerForm.controls['password2'].touched ) {
+            <label class="form-text text-error">
+              Las contraseñas no son iguales
+            </label>
+            }
+          </div>
+        </label>
+
+        <div class="text-center">
+          <button type="submit"
+            class="mt-4 px-6 py-2 bg-primary-dark text-accent-color font-semibold rounded-4xl transition duration-300 cursor-pointer">
+            Registrar
+          </button><br>
+        </div>
+      </form>
+
+      <div class="modal text-center" [class.modal-open]="showSuccessModal()">
+        <div class="modal-box">
+          <h3 class="font-bold text-lg">¡Empleado registrado!</h3>
+          <p class="py-4">El empleado se ha registrado correctamente.</p>
+          <div class="modal-action flex justify-center">
+            <button class="btn btn-primary" (click)="closeSuccessModal()">Aceptar</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="modal text-center" [class.modal-open]="showErrorModal()">
+        <div class="modal-box">
+          <h3 class="font-bold text-lg text-error">Error al registrar</h3>
+          <p class="py-4">No se pudo registrar el empleado. Inténtalo nuevamente.</p>
+          <div class="modal-action flex justify-center">
+            <button class="btn" (click)="closeErrorModal()">Cerrar</button>
+          </div>
+        </div>
+      </div>
+
+
+    </div>
+  </div>
+</div>

@@ -1,0 +1,69 @@
+<div class="overflow-x-auto font-normal text-6xl">
+  <table class="table text-center border-collapse">
+    <thead>
+      <tr>
+        <th class="p-0">
+          <div class="bg-primary-dark rounded-2xl text-accent-color px-4 py-3 m-2">
+            Número de Orden
+          </div>
+        </th>
+        <th class="p-0">
+          <div class="bg-primary-dark rounded-2xl text-accent-color px-4 py-3 m-2">
+            Método de Pago
+          </div>
+        </th>
+        <th class="p-0">
+          <div class="bg-primary-dark rounded-2xl text-accent-color px-4 py-3 m-2">
+            Estado de Pago
+          </div>
+        </th>
+        <th class="p-0">
+          <div class="bg-primary-dark rounded-2xl text-accent-color px-4 py-3 m-2">
+            Valor Total
+          </div>
+        </th>
+        <th class="p-0">
+          <div class="bg-primary-dark rounded-2xl text-accent-color px-4 py-3 m-2">
+            Número de Productos
+          </div>
+        </th>
+        <th class="p-0">
+          <div class="bg-primary-dark rounded-2xl text-accent-color px-4 py-3 m-2">
+            Fecha de Registro
+          </div>
+        </th>
+      </tr>
+    </thead>
+
+
+    <tbody>
+      <tr *ngFor="let order of paginatedOrders" class="border-b-2 border-bg-surface">
+        <td class="border-b-2 border-bg-surface">
+          <a [routerLink]="['/orders', order.id]" class="hover:text-red-600 transition-colors duration-200">
+            {{ order.id }}
+          </a>
+        </td>
+        <td class="border-b-2 border-bg-surface">Punto POS</td>
+        <td class="border-b-2 border-bg-surface">
+          <span [class]="order.status | orderStatus">{{ order.status | orderStatusTranslate }}</span>
+        </td>
+        <td class="border-b-2 border-bg-surface">{{ order.totalAmount | currency }}</td>
+        <td class="border-b-2 border-bg-surface">{{ order.totalItems }}</td>
+        <td class="border-b-2 border-bg-surface">
+          {{ order.createdAt | date: 'dd/MM/yyyy' }}
+        </td>
+
+      </tr>
+    </tbody>
+  </table>
+</div>
+
+<div class="pagination-controls text-center mt-4">
+  <button class="btn btn-active mr-3" (click)="changePage(currentPage - 1)" [disabled]="currentPage === 1">Anterior</button>
+  <span>Página {{ currentPage }} de {{ totalPages }}</span>
+  <button class="btn btn-active ml-3 mr-3" (click)="changePage(currentPage + 1)" [disabled]="currentPage === totalPages">Siguiente</button>
+
+  <select (change)="handlePageSizeChange($event)" [value]="pageSize">
+    <option *ngFor="let size of [10, 20, 50, 100]" [value]="size">{{ size }}</option>
+  </select>
+</div>

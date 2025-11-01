@@ -1,0 +1,38 @@
+<div class="overflow-hidden px-2 py-1">
+  <div class="grid grid-cols-[150px_70px_150px] gap-x-4 items-center border-b border-gray-400 py-2">
+    <div class="flex items-center space-x-2 min-w-0">
+      <button
+        class="w-6 h-6 flex items-center justify-center border-2 font-bold text-xl border-red-500 text-red-500 rounded-full cursor-pointer hover:bg-red-100 flex-shrink-0"
+        (click)="removeItem()"
+      >
+        ×
+      </button>
+      <div class="truncate">
+        <h3 class="font-bold text-black text-sm truncate">{{ item().product.name }}</h3>
+        <p class="font-bold text-black text-xs">$ {{ item().product.price | number }}</p>
+      </div>
+    </div>
+
+    <div class="flex items-center justify-center text-black flex-shrink-0">
+      <div class="flex flex-row items-center justify-center rounded-3xl">
+        <button
+          class="w-6 h-6 flex items-center justify-center border-2 font-bold text-2xl border-black rounded-full cursor-pointer hover:bg-gray-100"
+          (click)="decrementQuantity()"
+        >
+          -
+        </button>
+        <span class="mx-2 font-extrabold text-lg text-black w-7 text-center">{{ item().quantity }}</span>
+        <button
+          class="w-6 h-6 flex items-center justify-center border-2 font-bold text-2xl border-black rounded-full cursor-pointer hover:bg-gray-100"
+          (click)="incrementQuantity()"
+        >
+          +
+        </button>
+      </div>
+    </div>
+
+    <p class="font-bold text-black text-left flex-shrink-0 mx-4">
+      $ {{ item().product.price * item().quantity | number }}
+    </p>
+  </div>
+</div>

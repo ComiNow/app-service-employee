@@ -1,0 +1,30 @@
+<div class="flex pt-16 h-[calc(110vh-4rem)]">
+  <category-sidebar
+    [categories]="categoriesResource.value() ?? []"
+    (categoryDeleted)="reloadCategories($event)"
+    [getCategoryName]="getCategoryName.bind(this)"
+  ></category-sidebar>
+
+  <div class="ml-72 flex-1 overflow-hidden p-2 pb-0">
+    <div
+      class="sticky top-0 bg-base-100 flex justify-center p-2 items-center mb-4 z-10"
+    >
+      <h2 class="text-xl font-bold text-center px-10">
+        Productos
+        <!-- <span class="text-sm text-gray-500 badge">{{productsResource.value()?.count}}</span> -->
+      </h2>
+      <button
+        routerLink="/products/new"
+        class="px-3 py-2 text-center rounded-md font-bold bg-primary-dark text-accent-color cursor-pointer hover:bg-button-gray-hover transition"
+      >
+        Crear producto
+      </button>
+    </div>
+
+    <product-table
+      [products]="filteredProducts()"
+      [getCategoryName]="getCategoryName.bind(this)"
+      (productDeleted)="reloadProducts($event)"
+    ></product-table>
+  </div>
+</div>
