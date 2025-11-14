@@ -1,0 +1,111 @@
+name: Deploy to AWS Production
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch: # Permite ejecutar manualmente desde GitHub
+
+env:
+  NODE_VERSION: '20.x'
+
+jobs:
+  deploy:
+    name: Build and Deploy to S3 + CloudFront
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: 📥 Checkout code
+        uses: actions/checkout@v4
+
+      - name: 🟢 Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+
+      - name: 📦 Install dependencies
+        run: npm ci
+
+      - name: 🔨 Build Angular app for production
+        run: npm run build -- --configuration production
+        env:
+          NODE_ENV: production
+
+      - name: 📋 Verify build output
+        run: |
+          echo "Build directory contents:"
+          ls -la dist/
+          if [ -d "dist/app-service-client/browser" ]; then
+            echo "✅ Build successful - browser directory found"
+            ls -la dist/app-service-client/browser/
+          else
+            echo "❌ Build directory structure unexpected"
+            exit 1
+          fi
+
+      - name: 🔐 Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ secrets.AWS_REGION }}
+
+      - name: 🚀 Deploy to S3
+        run: |
+          aws s3 sync dist/app-service-client/browser/ s3://${{ secrets.AWS_S3_BUCKET }} \
+            --delete \
+            --cache-control "public,max-age=31536000,immutable" \
+            --exclude "*.html" \
+            --exclude "*.json"
+
+          # HTML y JSON sin cache para actualizaciones inmediatas
+          aws s3 sync dist/app-service-client/browser/ s3://${{ secrets.AWS_S3_BUCKET }} \
+            --exclude "*" \
+            --include "*.html" \
+            --include "*.json" \
+            --cache-control "public,max-age=0,must-revalidate"
+
+      - name: 🔄 Resolve CloudFront distribution ID (if domain provided) and invalidate cache
+        env:
+          CF_INPUT: ${{ secrets.AWS_CLOUDFRONT_DISTRIBUTION_ID }}
+        run: |
+          set -euo pipefail
+          echo "CloudFront input: $CF_INPUT"
+          # If input looks like a domain (contains a dot), try to resolve to Distribution ID
+          if [[ "$CF_INPUT" == *.* ]]; then
+            echo "Input appears to be a domain name -> resolving distribution ID via AWS API..."
+            DIST_ID=$(aws cloudfront list-distributions --query "DistributionList.Items[?DomainName=='${CF_INPUT}'].Id | [0]" --output text)
+            if [ -z "$DIST_ID" ] || [ "$DIST_ID" == "None" ]; then
+              echo "ERROR: Could not resolve distribution ID for domain $CF_INPUT"
+              echo "Double-check the domain or set AWS_CLOUDFRONT_DISTRIBUTION_ID to the distribution ID (E... )"
+              exit 1
+            fi
+          else
+            DIST_ID="$CF_INPUT"
+          fi
+          echo "Resolved Distribution ID: $DIST_ID"
+          aws cloudfront create-invalidation \
+            --distribution-id "$DIST_ID" \
+            --paths "/*"
+
+      - name: ✅ Deployment complete
+        run: |
+          echo "🎉 Deployment successful!"
+          echo "🌐 URL: https://${{ secrets.AWS_CLOUDFRONT_DISTRIBUTION_ID }}"
+          echo "📦 S3 Bucket: ${{ secrets.AWS_S3_BUCKET }}"
+          echo "🕒 Deployed at: $(date)"
+
+      - name: 📊 Deployment summary
+        if: success()
+        run: |
+          echo "### 🚀 Deployment Successful! 🎉" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "**Environment:** Production" >> $GITHUB_STEP_SUMMARY
+          echo "**URL:** https://${{ secrets.AWS_CLOUDFRONT_DISTRIBUTION_ID }}" >> $GITHUB_STEP_SUMMARY
+          echo "**S3 Bucket:** ${{ secrets.AWS_S3_BUCKET }}" >> $GITHUB_STEP_SUMMARY
+          echo "**Region:** ${{ secrets.AWS_REGION }}" >> $GITHUB_STEP_SUMMARY
+          echo "**Commit:** ${{ github.sha }}" >> $GITHUB_STEP_SUMMARY
+          echo "**Branch:** ${{ github.ref_name }}" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "_Deployed at $(date)_" >> $GITHUB_STEP_SUMMARY
