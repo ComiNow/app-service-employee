@@ -1,69 +1,131 @@
-<div class="overflow-x-auto font-normal text-6xl">
-  <table class="table text-center border-collapse">
-    <thead>
-      <tr>
-        <th class="p-0">
-          <div class="bg-primary-dark rounded-2xl text-accent-color px-4 py-3 m-2">
-            Número de Orden
-          </div>
-        </th>
-        <th class="p-0">
-          <div class="bg-primary-dark rounded-2xl text-accent-color px-4 py-3 m-2">
-            Método de Pago
-          </div>
-        </th>
-        <th class="p-0">
-          <div class="bg-primary-dark rounded-2xl text-accent-color px-4 py-3 m-2">
-            Estado de Pago
-          </div>
-        </th>
-        <th class="p-0">
-          <div class="bg-primary-dark rounded-2xl text-accent-color px-4 py-3 m-2">
-            Valor Total
-          </div>
-        </th>
-        <th class="p-0">
-          <div class="bg-primary-dark rounded-2xl text-accent-color px-4 py-3 m-2">
-            Número de Productos
-          </div>
-        </th>
-        <th class="p-0">
-          <div class="bg-primary-dark rounded-2xl text-accent-color px-4 py-3 m-2">
-            Fecha de Registro
-          </div>
-        </th>
-      </tr>
-    </thead>
+<div class="card bg-base-100 shadow-xl">
+  <div class="card-body p-6">
+    <div class="flex justify-between items-center mb-6">
+      <div class="flex items-center gap-4">
+        <select class="select select-bordered select-sm w-20" (change)="handlePageSizeChange($event)" [value]="pageSize">
+          <option *ngFor="let size of [10, 20, 50, 100]" [value]="size">{{ size }}</option>
+        </select>
+        <span class="text-sm text-base-content/70">elementos por página</span>
+      </div>
+      <div class="stats stats-horizontal shadow">
+        <div class="stat">
+          <div class="stat-title text-xs">Total</div>
+          <div class="stat-value text-lg">{{ totalOrders }}</div>
+        </div>
+      </div>
+    </div>
 
+    <div class="overflow-x-auto">
+      <table class="table table-zebra table-pin-rows">
+        <thead>
+          <tr class="bg-primary text-primary-content">
+            <th class="text-center">Orden</th>
+            <th class="text-center">Método</th>
+            <th class="text-center">Estado</th>
+            <th class="text-center">Total</th>
+            <th class="text-center">Productos</th>
+            <th class="text-center">Fecha</th>
+            <th class="text-center">Acciones</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let order of paginatedOrders; trackBy: trackByOrderId" class="hover">
+            <td class="text-center font-mono font-semibold">
+              #{{ order.id }}
+            </td>
+            <td class="text-center">
+              <div class="badge badge-outline badge-sm">Punto POS</div>
+            </td>
+            <td class="text-center">
+              <div class="badge badge-sm" [ngClass]="getStatusBadgeClass(order.status)">
+                {{ order.status | orderStatusTranslate }}
+              </div>
+            </td>
+            <td class="text-center font-semibold">
+              {{ order.totalAmount | currency }}
+            </td>
+            <td class="text-center">
+              <div class="badge badge-neutral badge-sm">
+                {{ order.totalItems }}
+              </div>
+            </td>
+            <td class="text-center text-sm">
+              {{ order.createdAt | date: 'dd/MM/yyyy' }}<br>
+              <span class="text-xs text-base-content/60">{{ order.createdAt | date: 'HH:mm' }}</span>
+            </td>
+            <td class="text-center">
+              <div class="dropdown dropdown-left dropdown-end">
+                <div tabindex="0" role="button" class="btn btn-ghost btn-sm">
+                  <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+                  </svg>
+                </div>
+                <ul tabindex="0" class="dropdown-content menu bg-base-100 rounded-box z-[1] w-32 p-2 shadow">
+                  <li>
+                    <a [routerLink]="['/orders', order.id]" class="text-sm">
+                      <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                      </svg>
+                      Ver detalle
+                    </a>
+                  </li>
+                </ul>
+              </div>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
 
-    <tbody>
-      <tr *ngFor="let order of paginatedOrders" class="border-b-2 border-bg-surface">
-        <td class="border-b-2 border-bg-surface">
-          <a [routerLink]="['/orders', order.id]" class="hover:text-red-600 transition-colors duration-200">
-            {{ order.id }}
-          </a>
-        </td>
-        <td class="border-b-2 border-bg-surface">Punto POS</td>
-        <td class="border-b-2 border-bg-surface">
-          <span [class]="order.status | orderStatus">{{ order.status | orderStatusTranslate }}</span>
-        </td>
-        <td class="border-b-2 border-bg-surface">{{ order.totalAmount | currency }}</td>
-        <td class="border-b-2 border-bg-surface">{{ order.totalItems }}</td>
-        <td class="border-b-2 border-bg-surface">
-          {{ order.createdAt | date: 'dd/MM/yyyy' }}
-        </td>
+    <div *ngIf="paginatedOrders.length === 0" class="text-center py-12">
+      <div class="flex flex-col items-center gap-4">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-16 w-16 text-base-content/30" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+        </svg>
+        <div>
+          <h3 class="text-lg font-semibold text-base-content/70">No hay órdenes disponibles</h3>
+          <p class="text-sm text-base-content/50">Ajusta los filtros de fecha para ver más resultados</p>
+        </div>
+      </div>
+    </div>
 
-      </tr>
-    </tbody>
-  </table>
-</div>
+    <div *ngIf="totalPages > 1" class="flex justify-between items-center mt-6">
+      <div class="text-sm text-base-content/70">
+        Mostrando {{ (currentPage - 1) * pageSize + 1 }} - {{ Math.min(currentPage * pageSize, totalOrders) }} de {{ totalOrders }} resultados
+      </div>
 
-<div class="pagination-controls text-center mt-4">
-  <button class="btn btn-active mr-3" (click)="changePage(currentPage - 1)" [disabled]="currentPage === 1">Anterior</button>
-  <span>Página {{ currentPage }} de {{ totalPages }}</span>
-  <button class="btn btn-active ml-3 mr-3" (click)="changePage(currentPage + 1)" [disabled]="currentPage === totalPages">Siguiente</button>
+      <div class="join">
+        <button class="join-item btn btn-sm"
+                (click)="changePage(1)"
+                [disabled]="currentPage === 1">
+          «
+        </button>
+        <button class="join-item btn btn-sm"
+                (click)="changePage(currentPage - 1)"
+                [disabled]="currentPage === 1">
+          ‹
+        </button>
 
-  <select (change)="handlePageSizeChange($event)" [value]="pageSize">
-    <option *ngFor="let size of [10, 20, 50, 100]" [value]="size">{{ size }}</option>
-  </select>
+        <button *ngFor="let page of getVisiblePages()"
+                class="join-item btn btn-sm"
+                [class.btn-active]="page === currentPage"
+                (click)="onPageClick(page)"
+                [disabled]="page === '...'">
+          {{ page }}
+        </button>
+
+        <button class="join-item btn btn-sm"
+                (click)="changePage(currentPage + 1)"
+                [disabled]="currentPage === totalPages">
+          ›
+        </button>
+        <button class="join-item btn btn-sm"
+                (click)="changePage(totalPages)"
+                [disabled]="currentPage === totalPages">
+          »
+        </button>
+      </div>
+    </div>
+  </div>
 </div>

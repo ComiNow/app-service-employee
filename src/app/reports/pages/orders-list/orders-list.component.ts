@@ -17,49 +17,54 @@ export class OrdersListComponent {
 
   customStartDate = signal<Date | null>(null);
   customEndDate = signal<Date | null>(null);
+  refreshTrigger = signal(0);
 
   onDateRangeSelected(event: { start: Date | null; end: Date | null }) {
+    this.orderService.clearCache();
     this.customStartDate.set(event.start);
     this.customEndDate.set(event.end);
+    this.refreshTrigger.update(prev => prev + 1);
   }
 
-  setDateFilter() {
-    this.customStartDate.set(null);
-    this.customEndDate.set(null);
+  onRefreshRequested() {
+    this.orderService.clearCache();
+    this.refreshTrigger.update(prev => prev + 1);
   }
 
   ordersResource = rxResource({
-    request: () => ({}),
+    request: () => ({ trigger: this.refreshTrigger() }),
     loader: () => this.orderService.getOrders(),
   });
 
   filtersOrders = computed(() => {
-    let orders: Order[] = [];
+    const allOrders = this.ordersResource.value()?.data ?? [];
     const startDate = this.customStartDate();
     const endDate = this.customEndDate();
 
-    if (startDate && endDate) {
-      orders = this.ordersResource.value()?.data ?? [];
+    if (!startDate || !endDate) {
+      return [];
+    }
 
-      if (startDate.getTime() === endDate.getTime()) {
-        const startOfDay = new Date(startDate);
-        startOfDay.setHours(0, 0, 0, 0);
-        const endOfDay = new Date(endDate);
-        endOfDay.setHours(23, 59, 59, 999);
+    let filtered: Order[] = [];
 
-        return orders.filter(order => {
-          const orderDate = new Date(order.createdAt);
-          return orderDate >= startOfDay && orderDate <= endOfDay;
-        });
-      }
+    if (startDate.getTime() === endDate.getTime()) {
+      const startOfDay = new Date(startDate);
+      startOfDay.setHours(0, 0, 0, 0);
+      const endOfDay = new Date(endDate);
+      endOfDay.setHours(23, 59, 59, 999);
 
-      return orders.filter(order => {
+      filtered = allOrders.filter(order => {
+        const orderDate = new Date(order.createdAt);
+        return orderDate >= startOfDay && orderDate <= endOfDay;
+      });
+    } else {
+      filtered = allOrders.filter(order => {
         const orderDate = new Date(order.createdAt);
         return orderDate >= startDate && orderDate <= endDate;
       });
     }
 
-    return orders;
+    return [...filtered];
   });
 
 }

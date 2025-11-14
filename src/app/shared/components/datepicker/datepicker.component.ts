@@ -1,35 +1,47 @@
-import { ChangeDetectionStrategy, Component, EventEmitter, inject, Output, DestroyRef } from '@angular/core';
-import { provideNativeDateAdapter } from '@angular/material/core';
-import { MatDatepickerModule } from '@angular/material/datepicker';
-import { MatFormFieldModule } from '@angular/material/form-field';
-import { FormGroup, FormsModule, ReactiveFormsModule, FormControl } from '@angular/forms';
-import { JsonPipe } from '@angular/common';
+import { ChangeDetectionStrategy, Component, EventEmitter, inject, Output, DestroyRef, signal } from '@angular/core';
+import { FormControl, FormsModule, ReactiveFormsModule } from '@angular/forms';
+import { CommonModule } from '@angular/common';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 
 @Component({
   selector: 'date-range-picker',
   templateUrl: './datepicker.component.html',
-  providers: [provideNativeDateAdapter()],
-  imports: [MatFormFieldModule, MatDatepickerModule, FormsModule, ReactiveFormsModule],
+  imports: [CommonModule, FormsModule, ReactiveFormsModule],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class DateRangePicker {
   @Output() rangeSelected = new EventEmitter<{ start: Date | null; end: Date | null }>();
+  @Output() refreshRequested = new EventEmitter<void>();
+
   private destroyRef = inject(DestroyRef);
 
-  range = new FormGroup({
-    start: new FormControl<Date | null>(null),
-    end: new FormControl<Date | null>(null),
-  });
+  startDateControl = new FormControl<string | null>(null);
+  endDateControl = new FormControl<string | null>(null);
+  isLoading = signal(false);
 
   constructor() {
-    this.range.valueChanges
+    this.startDateControl.valueChanges
       .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe(value => {
-        this.rangeSelected.emit({
-          start: value.start ?? null,
-          end: value.end ?? null
-        });
-      });
+      .subscribe(() => this.emitDateRange());
+
+    this.endDateControl.valueChanges
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe(() => this.emitDateRange());
+  }
+
+  private emitDateRange() {
+    const startStr = this.startDateControl.value;
+    const endStr = this.endDateControl.value;
+
+    const start = startStr ? new Date(startStr + 'T00:00:00') : null;
+    const end = endStr ? new Date(endStr + 'T23:59:59') : null;
+
+    if (start && end) {
+      this.rangeSelected.emit({ start, end });
+    }
+  }
+
+  onRefresh() {
+    this.refreshRequested.emit();
   }
 }

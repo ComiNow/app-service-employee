@@ -23,10 +23,6 @@ export class OrderService {
       return throwError(() => new Error('Business ID is missing. Cannot fetch orders.'));
     }
 
-    if (this.ordersCache.data?.length) {
-      return of(this.ordersCache);
-    }
-
     return this.http
       .get<OrderServiceResponse>(`${baseUrl}/orders/${businessId}?limit=100`)
       .pipe(
@@ -36,5 +32,8 @@ export class OrderService {
       );
   }
 
+  clearCache(): void {
+    this.ordersCache = { data: [], meta: { total: 0, page: 0, lastPage: 0 } };
+  }
 
 }
