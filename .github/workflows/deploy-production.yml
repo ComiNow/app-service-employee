@@ -36,9 +36,9 @@ jobs:
         run: |
           echo "Build directory contents:"
           ls -la dist/
-          if [ -d "dist/app-service-client/browser" ]; then
+          if [ -d "dist/app-service-employee/browser" ]; then
             echo "✅ Build successful - browser directory found"
-            ls -la dist/app-service-client/browser/
+            ls -la dist/app-service-employee/browser/
           else
             echo "❌ Build directory structure unexpected"
             exit 1
@@ -53,14 +53,14 @@ jobs:
 
       - name: 🚀 Deploy to S3
         run: |
-          aws s3 sync dist/app-service-client/browser/ s3://${{ secrets.AWS_S3_BUCKET }} \
+          aws s3 sync dist/app-service-employee/browser/ s3://${{ secrets.AWS_S3_BUCKET }} \
             --delete \
             --cache-control "public,max-age=31536000,immutable" \
             --exclude "*.html" \
             --exclude "*.json"
 
           # HTML y JSON sin cache para actualizaciones inmediatas
-          aws s3 sync dist/app-service-client/browser/ s3://${{ secrets.AWS_S3_BUCKET }} \
+          aws s3 sync dist/app-service-employee/browser/ s3://${{ secrets.AWS_S3_BUCKET }} \
             --exclude "*" \
             --include "*.html" \
             --include "*.json" \
