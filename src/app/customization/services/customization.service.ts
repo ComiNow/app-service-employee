@@ -1,20 +1,27 @@
-// En CustomizationService
-
 import { Injectable, inject } from '@angular/core';
 import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import { Observable, forkJoin, of, throwError } from 'rxjs';
 import { map, switchMap, catchError } from 'rxjs/operators';
 import { environment } from '../../../environments/environment';
 import { AuthService } from '../../auth/services/auth.service';
+
 const baseUrl = environment.baseUrl;
 
+// Actualizada según tu respuesta JSON del backend
 export interface CustomizationPayload {
+  id?: number;
+  businessId?: string;
   logo: string | null;
   brand: string;
   font: string;
   fontSize: number;
   themeId: number;
   imageCarousel: string[];
+  // Agregamos esto para poder leer el nombre del tema que viene del back
+  theme?: {
+    id: number;
+    name: string;
+  };
 }
 
 interface FileUploadResponse {
@@ -39,7 +46,7 @@ export class CustomizationService {
     { id: 7, name: "synthwave" }, { id: 8, name: "retro" }, { id: 9, name: "cyberpunk" },
     { id: 10, name: "valentine" }, { id: 11, name: "halloween" }, { id: 12, name: "garden" },
     { id: 13, name: "forest" }, { id: 14, name: "aqua" }, { id: 15, name: "lofi" },
-    { id: 16, name: "pastel" }, { id: 17, name: "fantasy" }, { id: 18, "name": "wireframe" },
+    { id: 16, name: "pastel" }, { id: 17, name: "fantasy" }, { id: 18, name: "wireframe" },
     { id: 19, name: "black" }, { id: 20, name: "luxury" }, { id: 21, name: "dracula" },
     { id: 22, name: "cmyk" }, { id: 23, name: "autumn" }, { id: 24, name: "business" },
     { id: 25, name: "acid" }, { id: 26, name: "lemonade" }, { id: 27, name: "night" },
@@ -59,61 +66,40 @@ export class CustomizationService {
     if (error.error instanceof ErrorEvent) {
       errorMessage = `Error: ${error.error.message}`;
     } else {
-      errorMessage = `Server returned code: ${error.status}, error message: ${error.message}`;
-      console.error('Backend error:', error.error);
+      // Si el backend envía un mensaje claro, lo usamos
+      errorMessage = error.error?.message || `Server returned code: ${error.status}`;
+      console.error('Backend error detail:', error.error);
     }
     console.error(errorMessage);
     return throwError(() => new Error(errorMessage));
   }
 
+  // --- MÉTODOS DE SUBIDA DE ARCHIVOS ---
+
   uploadLogo(imageFile: File): Observable<string | null> {
-    if (!imageFile) {
-      console.warn('No logo file provided for upload.');
-      return of(null);
-    }
+    if (!imageFile) return of(null);
     const formData = new FormData();
     formData.append('file', imageFile);
 
     return this.http.post<FileUploadResponse>(`${baseUrl}/customization/files/logo`, formData).pipe(
-      map((resp) => {
-        if (resp && resp.fileName) {
-          console.log('Logo subido con éxito, URL:', resp.fileName);
-          return resp.fileName;
-        }
-        console.error('La respuesta de subida de logo no contiene fileName:', resp);
-        return null;
-      }),
-      catchError(this.handleError)
-    );
-  }
-
-  uploadCarouselImage(imageFile: File): Observable<string | null> {
-    if (!imageFile) {
-      console.warn('No carousel image file provided for upload.');
-      return of(null);
-    }
-    const formData = new FormData();
-    formData.append('file', imageFile);
-
-    return this.http.post<FileUploadResponse>(`${baseUrl}/customization/files/carousel`, formData).pipe(
-      map((resp) => {
-        if (resp && resp.fileName) {
-          console.log('Imagen de carrusel subida con éxito, URL:', resp.fileName);
-          return resp.fileName;
-        }
-        console.error('La respuesta de subida de imagen de carrusel no contiene fileName:', resp);
-        return null;
-      }),
+      map((resp) => resp?.fileName || null),
       catchError(this.handleError)
     );
   }
 
   uploadMultipleCarouselImages(files: File[]): Observable<string[]> {
-    if (!files || files.length === 0) {
-      console.warn('No carousel files provided for upload.');
-      return of([]);
-    }
-    const uploadObservables: Observable<string | null>[] = files.map(file => this.uploadCarouselImage(file));
+    if (!files || files.length === 0) return of([]);
+    
+    // Reutilizamos la lógica de subida individual si tienes el endpoint, 
+    // o iteramos sobre el endpoint de carrusel
+    const uploadObservables = files.map(file => {
+        const formData = new FormData();
+        formData.append('file', file);
+        return this.http.post<FileUploadResponse>(`${baseUrl}/customization/files/carousel`, formData).pipe(
+            map(res => res.fileName),
+            catchError(() => of(null)) // Si una falla, no rompemos todo el forkJoin
+        );
+    });
 
     return forkJoin(uploadObservables).pipe(
       map(urls => urls.filter((url): url is string => url !== null)),
@@ -121,23 +107,32 @@ export class CustomizationService {
     );
   }
 
-  // Modificado para que sea solo para CREAR la personalización inicial
+  // --- MÉTODOS PRINCIPALES ---
+
+  // GET: Concatena el ID a la URL
+  getCustomization(businessIdFromComponent: string): Observable<CustomizationPayload> {
+    const businessIdInToken = this.getBusinessIdForInternalUse();
+    
+    // Validaciones de seguridad
+    if (!businessIdInToken) return throwError(() => new Error('No token Business ID'));
+    if (businessIdFromComponent && businessIdFromComponent !== businessIdInToken) {
+      return throwError(() => new Error('Unauthorized retrieval attempt.'));
+    }
+
+    // CORRECCIÓN: Agregar el ID
+    return this.http.get<CustomizationPayload>(`${baseUrl}/customization/${businessIdInToken}`).pipe(
+      catchError(this.handleError)
+    );
+  }
+
+  // POST: Crea nueva personalización
   saveCustomization(
-    customizationData: {
-      businessName: string;
-      daisyTheme: string;
-      baseFontSize: string;
-      fontFamily: string;
-      // No necesitamos existingCarouselUrls aquí, al crear, todo es nuevo
-    },
+    customizationData: any, // Tipar según tu formulario
     logoFile: File | null,
     carouselFiles: File[]
   ): Observable<any> {
     const businessId = this.getBusinessIdForInternalUse();
-    if (!businessId) {
-       console.error('No businessId disponible en el token para crear personalización.');
-       return throwError(() => new Error('Business ID missing for customization creation.'));
-    }
+    if (!businessId) return throwError(() => new Error('No token Business ID'));
 
     const uploadLogo$ = logoFile ? this.uploadLogo(logoFile) : of(null);
     const uploadCarouselImages$ = this.uploadMultipleCarouselImages(carouselFiles);
@@ -150,114 +145,71 @@ export class CustomizationService {
           font: customizationData.fontFamily,
           fontSize: this.mapBaseFontSizeToNumber(customizationData.baseFontSize),
           themeId: this.getThemeIdFromName(customizationData.daisyTheme),
-          imageCarousel: carouselUrls, // Aquí solo van las URL de las imágenes subidas nuevas
+          imageCarousel: carouselUrls,
         };
 
-        console.log('Payload final para enviar a /api/customization (creación POST):', payload);
-        const backendUrl = `${baseUrl}/customization`;
-        return this.http.post(backendUrl, payload).pipe(
+        return this.http.post(`${baseUrl}/customization`, payload).pipe(
           catchError(this.handleError)
         );
       })
     );
   }
 
-  // Mantengo businessIdFromComponent solo para verificar que coincide con el del token, si lo deseas
+  // PATCH: Actualiza (URL sin ID, el back usa el del body o token)
   updateCustomization(
     businessIdFromComponent: string,
-    customizationData: {
-      businessName: string;
-      daisyTheme: string;
-      baseFontSize: string;
-      fontFamily: string;
-      existingCarouselUrls: string[]; // Estas son las URLs existentes que se mantendrán
-    },
+    customizationData: any, 
     newLogoFile: File | null,
-    existingLogoUrl: string | null, // URL del logo que ya existía (si no se sube uno nuevo)
-    newCarouselFiles: File[], // Nuevos archivos de carrusel para subir
-    existingCarouselUrls: string[] // URLs existentes del carrusel que se mantendrán
+    existingLogoUrl: string | null,
+    newCarouselFiles: File[],
+    existingCarouselUrls: string[]
   ): Observable<any> {
     const businessIdInToken = this.getBusinessIdForInternalUse();
-    if (!businessIdInToken) {
-      console.error('No businessId disponible en el token para actualizar personalización.');
-      return throwError(() => new Error('Business ID missing for customization update.'));
-    }
-    if (businessIdFromComponent && businessIdFromComponent !== businessIdInToken) {
-      console.error('Intento de actualizar personalización para un businessId diferente al autenticado.');
-      return throwError(() => new Error('Unauthorized update attempt.'));
-    }
+    
+    if (!businessIdInToken) return throwError(() => new Error('No token Business ID'));
+    if (businessIdFromComponent !== businessIdInToken) return throwError(() => new Error('Unauthorized'));
 
-    // Si hay un nuevo archivo de logo, subirlo. Si no, mantener el existingLogoUrl.
     const uploadNewLogo$ = newLogoFile ? this.uploadLogo(newLogoFile) : of(existingLogoUrl);
     const uploadNewCarouselImages$ = this.uploadMultipleCarouselImages(newCarouselFiles);
 
     return forkJoin([uploadNewLogo$, uploadNewCarouselImages$]).pipe(
       switchMap(([finalLogoUrl, newCarouselUrls]) => {
         const payload: CustomizationPayload = {
-          logo: finalLogoUrl,
+          logo: finalLogoUrl, // Aquí va la URL (nueva o vieja)
           brand: customizationData.businessName,
           font: customizationData.fontFamily,
           fontSize: this.mapBaseFontSizeToNumber(customizationData.baseFontSize),
           themeId: this.getThemeIdFromName(customizationData.daisyTheme),
-          // Combinar las URLs existentes que se mantienen con las nuevas subidas
           imageCarousel: [...existingCarouselUrls, ...newCarouselUrls],
         };
 
-        console.log(`Payload final para enviar a /api/customization (actualización PATCH) para businessId ${businessIdInToken}:`, payload);
-        const backendUrl = `${baseUrl}/customization`;
-        return this.http.patch(backendUrl, payload).pipe(
+        // URL para PATCH (sin ID al final según tu indicación)
+        return this.http.patch(`${baseUrl}/customization`, payload).pipe(
           catchError(this.handleError)
         );
       })
     );
   }
 
+  // DELETE: Borrar (URL sin ID)
+  deleteCustomization(): Observable<any> {
+    return this.http.delete(`${baseUrl}/customization`).pipe(
+      catchError(this.handleError)
+    );
+  }
+
+  // --- HELPERS ---
   private mapBaseFontSizeToNumber(baseSize: string): number {
-    switch (baseSize.toLowerCase()) {
-      case 'sm': return 14;
-      case 'md': return 16;
-      case 'lg': return 18;
-      case 'xl': return 20;
-      default: return 16;
-    }
+    const sizes: {[key: string]: number} = { 'sm': 14, 'md': 16, 'lg': 18, 'xl': 20 };
+    return sizes[baseSize.toLowerCase()] || 16;
   }
 
   private getThemeIdFromName(themeName: string): number {
-    const foundTheme = this.daisyThemes.find(theme => theme.name.toLowerCase() === themeName.toLowerCase());
-    if (!foundTheme) {
-      console.warn(`Tema "${themeName}" no encontrado, usando el tema por defecto (light, ID: 1).`);
-      return 1;
-    }
-    return foundTheme.id;
+    const found = this.daisyThemes.find(t => t.name.toLowerCase() === themeName.toLowerCase());
+    return found ? found.id : 1;
   }
 
   getDaisyThemes(): DaisyTheme[] {
     return [...this.daisyThemes];
-  }
-
-  getCustomization(businessIdFromComponent: string): Observable<CustomizationPayload> {
-    const businessIdInToken = this.getBusinessIdForInternalUse();
-    if (!businessIdInToken) {
-      console.error('No businessId disponible en el token para obtener personalización.');
-      return throwError(() => new Error('Business ID missing for customization retrieval.'));
-    }
-    if (businessIdFromComponent && businessIdFromComponent !== businessIdInToken) {
-      console.error('Intento de obtener personalización para un businessId diferente al autenticado.');
-      return throwError(() => new Error('Unauthorized retrieval attempt.'));
-    }
-    return this.http.get<CustomizationPayload>(`${baseUrl}/customization`).pipe(
-      catchError(this.handleError)
-    );
-  }
-
-  deleteCustomization(): Observable<any> {
-    const businessIdInToken = this.getBusinessIdForInternalUse();
-    if (!businessIdInToken) {
-      console.error('No businessId disponible en el token para eliminar personalización.');
-      return throwError(() => new Error('Business ID missing for customization deletion.'));
-    }
-    return this.http.delete(`${baseUrl}/customization`).pipe(
-      catchError(this.handleError)
-    );
   }
 }

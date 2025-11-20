@@ -1,6 +1,6 @@
 import { Component, OnInit, inject, signal, HostListener, OnDestroy } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators, FormArray, FormControl } from '@angular/forms';
-import { RouterLink } from '@angular/router';
+import { Router, RouterLink } from '@angular/router';
 import { HttpClient, HttpClientModule } from '@angular/common/http';
 import { CommonModule } from '@angular/common';
 import { CustomizationService, DaisyTheme, CustomizationPayload } from '../../services/customization.service';
@@ -40,6 +40,7 @@ export class BusinessCustomizationComponent implements OnInit, OnDestroy {
   authService = inject(AuthService);
   http = inject(HttpClient);
   customizationService = inject(CustomizationService);
+  router = inject(Router);
 
   businessId: string | null = null;
   showSuccessModalValue = signal(false);
@@ -576,6 +577,11 @@ export class BusinessCustomizationComponent implements OnInit, OnDestroy {
         console.log('Personalización guardada/actualizada con éxito:', response);
         this.showSuccessModalValue.set(true);
         this.isCustomizationExisting = true;
+
+        setTimeout(() => {
+          this.showSuccessModalValue.set(false); 
+          this.router.navigate(['']); 
+        }, 2000);
       }
     });
   }

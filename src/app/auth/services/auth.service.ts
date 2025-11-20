@@ -83,8 +83,11 @@ export class AuthService {
         businessId,
       })
       .pipe(
-        map((resp) => this.handleAuthSuccess(resp)),
-        catchError((error: any) => this.handleAuthError(error))
+        map(() => true), 
+        catchError((error: any) => {
+            console.error('Error al registrar empleado:', error);
+            return of(false);
+        })
       );
   }
 

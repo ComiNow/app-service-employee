@@ -34,7 +34,8 @@
             <h3 class="text-xl font-semibold text-primary-dark mb-4 text-left">Logo</h3>
             <div
               class="w-48 h-48 rounded-full bg-gray-200 flex items-center justify-center mb-4 border-4 border-primary-dark overflow-hidden">
-              @if (businessForm.get('logoFile')?.value) {
+
+              @if (logoPreviewUrl) {
               <img [src]="logoPreviewUrl" alt="Logo Preview" class="w-full h-full object-cover">
               } @else {
               <span class="text-gray-500 text-lg">Tu Logo</span>
@@ -231,15 +232,17 @@
 
     <div class="modal-header p-4 bg-primary text-primary-content flex justify-between items-center rounded-t-lg">
       <div class="flex items-center gap-3">
-        @if (businessForm.get('logoFile')?.value) {
+        
+        @if (logoPreviewUrl) {
         <img [src]="logoPreviewUrl" alt="Logo de la marca"
           class="w-10 h-10 object-cover rounded-full border-2 border-accent-content">
         } @else {
         <div class="w-10 h-10 bg-gray-300 rounded-full flex items-center justify-center text-gray-600 text-xs">Logo
         </div>
         }
+        
         <h3 class="font-bold text-xl" [style.font-family]="businessForm.get('fontFamily')?.value">
-          {{ businessForm.get('businessName')?.value || 'Nombre de tu Negocio' }}
+          {{ businessForm.get('businessBrand')?.value || 'Nombre de tu Negocio' }}
         </h3>
       </div>
       <button class="btn btn-sm btn-circle btn-ghost" (click)="showPreviewModal = false">✕</button>
@@ -347,7 +350,7 @@
       <footer class="p-4 text-center rounded bg-primary text-primary-content mt-6">
         <p [style.font-family]="businessForm.get('fontFamily')?.value"
           [style.font-size]="getFontSize(businessForm.get('baseFontSize')?.value, 'footer')">
-          © {{ currentYear }} {{ businessForm.get('businessName')?.value || 'Tu Negocio' }}. Todos los derechos
+          © {{ currentYear }} {{ businessForm.get('businessBrand')?.value || 'Tu Negocio' }}. Todos los derechos
           reservados.
         </p>
       </footer>
