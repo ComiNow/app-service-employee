@@ -57,12 +57,7 @@
   class="fixed top-16 right-0 w-72 h-[calc(100vh-4rem)] bg-primary-dark shadow-md z-50 transition-transform duration-300 ease-in-out flex flex-col justify-between"
 >
   <div class="flex justify-center items-center p-4 border-b shadow-none">
-    <img
-      src="assets/Logo.png"
-      width="65"
-      height="65"
-      class="object-contain"
-    />
+    <img src="assets/Logo.png" width="65" height="65" class="object-contain" />
   </div>
 
   <ul class="space-y-6 p-6 flex-1">
@@ -73,7 +68,6 @@
         routerLinkActive="router-link-active"
         class="flex space-x-4 items-center w-full h-full px-2 py-1 border border-transparent hover:border-gray-600 rounded-md cursor-pointer transition text-accent-color"
       >
-
         <svg
           class="size-[1.2em] mr-5"
           xmlns="http://www.w3.org/2000/svg"
@@ -112,7 +106,7 @@
       </a>
     </li>
 
-    @if(isModuleAccessible(AppModulesId.ORDERS)) {
+    @if(isModuleAccessible(AppModulesId.KITCHEN)) {
     <li>
       <a
         (click)="toggleSidebar()"
@@ -137,9 +131,7 @@
         Gestión de Órdenes
       </a>
     </li>
-    } 
-    
-    @if(isModuleAccessible(AppModulesId.POS)) {
+    } @if(isModuleAccessible(AppModulesId.POS)) {
     <li>
       <a
         (click)="toggleSidebar()"
@@ -164,9 +156,7 @@
         Venta de Productos
       </a>
     </li>
-    } 
-    
-    @if(isModuleAccessible(AppModulesId.REPORTS)) {
+    } @if(isModuleAccessible(AppModulesId.REPORTS)) {
     <li>
       <a
         (click)="toggleSidebar()"
@@ -191,9 +181,7 @@
         Historial de Órdenes
       </a>
     </li>
-    } 
-    
-    @if(isModuleAccessible(AppModulesId.PRODUCTS)) {
+    } @if(isModuleAccessible(AppModulesId.PRODUCTS)) {
     <li>
       <a
         (click)="toggleSidebar()"
@@ -218,9 +206,7 @@
         Administración de Productos
       </a>
     </li>
-    }
-
-  @if(isModuleAccessible(AppModulesId.EMPLOYEES)) {
+    } @if(isModuleAccessible(AppModulesId.EMPLOYEES)) {
     <li>
       <a
         (click)="toggleSidebar()"

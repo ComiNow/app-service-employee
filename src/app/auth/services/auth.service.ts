@@ -6,7 +6,6 @@ import { environment } from '../../../environments/environment.development';
 import { User } from '../interfaces/user.interface';
 import { AuthResponse } from '../interfaces/auth-response.interface';
 
-
 type AuthStatus = 'checking' | 'authenticated' | 'not-authenticated';
 const baseUrl = environment.baseUrl;
 
@@ -34,7 +33,6 @@ export class AuthService {
 
   user = computed(() => this._user());
   token = computed(this._token);
-  //isAdmin = computed(() => this._user()?.positionId.includes('67f16e028d9f980b86ea0323') ?? false)
 
   login(email: string, password: string): Observable<boolean> {
     return this.http
@@ -47,10 +45,13 @@ export class AuthService {
         catchError((error: any) => this.handleAuthError(error))
       );
   }
-  
+
   registerBusiness(registrationPayload: any): Observable<boolean> {
     return this.http
-      .post<AuthResponse>(`${baseUrl}/auth/register/business`, registrationPayload)
+      .post<AuthResponse>(
+        `${baseUrl}/auth/register/business`,
+        registrationPayload
+      )
       .pipe(
         map((resp) => this.handleAuthSuccess(resp)),
         catchError((error: any) => this.handleAuthError(error))
@@ -58,42 +59,28 @@ export class AuthService {
   }
 
   registerEmployee(
-  fullName: string,
-  identificationNumber: string,
-  positionId: string,
-  password: string,
-  email: string
-): Observable<boolean> {
-  const businessId = this.user()?.businessId;
+    fullName: string,
+    identificationNumber: string,
+    roleId: string,
+    password: string,
+    email: string
+  ): Observable<boolean> {
+    const businessId = this.user()?.businessId;
 
-  if (!businessId) {
-    return new Observable<boolean>((observer) => {
-      observer.error('No businessId available.');
-    });
-  }
+    if (!businessId) {
+      return new Observable<boolean>((observer) => {
+        observer.error('No businessId available.');
+      });
+    }
 
-  return this.http
-    .post<AuthResponse>(`${baseUrl}/auth/register/employee`, {
-      fullName,
-      identificationNumber,
-      email,
-      positionId,
-      password,
-      businessId,
-    })
-    .pipe(
-      map((resp) => this.handleAuthSuccess(resp)),
-      catchError((error: any) => this.handleAuthError(error))
-    );
-}
-
-  register(fullName: string, identificationNumber: string, positionId: string, password: string): Observable<boolean> {
     return this.http
-      .post<AuthResponse>(`${baseUrl}/auth/register`, {
-        fullName: fullName,
-        identificationNumber: identificationNumber,
-        positionId: positionId,
-        password: password,
+      .post<AuthResponse>(`${baseUrl}/auth/register/employee`, {
+        fullName,
+        identificationNumber,
+        email,
+        roleId,
+        password,
+        businessId,
       })
       .pipe(
         map((resp) => this.handleAuthSuccess(resp)),
@@ -108,12 +95,10 @@ export class AuthService {
       return of(false);
     }
 
-    return this.http
-      .get<AuthResponse>(`${baseUrl}/auth/verify`)
-      .pipe(
-        map((resp) => this.handleAuthSuccess(resp)),
-        catchError((error: any) => this.handleAuthError(error))
-      );
+    return this.http.get<AuthResponse>(`${baseUrl}/auth/verify`).pipe(
+      map((resp) => this.handleAuthSuccess(resp)),
+      catchError((error: any) => this.handleAuthError(error))
+    );
   }
 
   getUserModuleAccess(): Observable<string[]> {
@@ -124,12 +109,17 @@ export class AuthService {
     }
     try {
       const decodedToken = JSON.parse(atob(token.split('.')[1]));
-      const moduleAccess = decodedToken['moduleAccessId'] || [];
-      console.log('Decoded Token:', decodedToken); // <-- Añade esto
-      console.log('Module Access from Token:', moduleAccess); // <-- Añade esto
+      const moduleAccessString = decodedToken['moduleAccessId'] || '';
+
+      const moduleAccess = moduleAccessString
+        ? moduleAccessString.split(',').filter((id: string) => id.trim())
+        : [];
+
+      console.log('Decoded Token:', decodedToken);
+      console.log('Module Access from Token:', moduleAccess);
       return of(moduleAccess);
     } catch (e) {
-      console.error('Error decoding token:', e); // <-- Captura errores de decodificación
+      console.error('Error decoding token:', e);
       this.logout();
       return of([]);
     }

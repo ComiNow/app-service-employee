@@ -6,18 +6,19 @@ import { AuthService } from '../../services/auth.service';
 
 const baseUrl = environment.baseUrl;
 
-
 export interface Employee {
   id: string;
   identificationNumber: string;
   email: string;
   fullName: string;
-  positionId: string;
+  roleId: string;
   businessId: string;
-  position: {
+  role?: {
     id: string;
     name: string;
-    moduleAccess: string[];
+    permissions: string[];
+    description?: string;
+    isDefault?: boolean;
   };
 }
 
@@ -27,16 +28,16 @@ export class EmployeeService {
   private authService = inject(AuthService);
 
   getEmployeesByBusiness(): Observable<any[]> {
-  const businessId = this.authService.user()?.businessId;
+    const businessId = this.authService.user()?.businessId;
 
-  if (!businessId) {
-    return new Observable<any[]>((observer) => {
-      observer.error('No businessId available.');
-    });
+    if (!businessId) {
+      return new Observable<any[]>((observer) => {
+        observer.error('No businessId available.');
+      });
+    }
+
+    return this.http.get<any[]>(
+      `${baseUrl}/auth/employees/business/${businessId}`
+    );
   }
-
-  return this.http.get<any[]>(
-    `${baseUrl}/auth/employees/business/${businessId}`
-  );
-}
 }

@@ -10,18 +10,12 @@ export const ordersKitchenRoutes: Routes = [
     path: '',
     component: KitchenLayoutComponent,
     canMatch: [AuthenticatedGuard, ModuleAccessGuard],
-    data: { moduleId: AppModulesId.ORDERS},
+    data: { moduleId: AppModulesId.KITCHEN },
     children: [
       {
         path: '',
         component: OrdersKitchenPageComponent,
       },
-      {
-        path: '**',
-        redirectTo: '',
-      },
     ],
   },
 ];
-
-export default ordersKitchenRoutes;

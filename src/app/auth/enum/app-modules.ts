@@ -1,10 +1,11 @@
-
 export enum AppModulesId {
-  POS = "68de0b4046ee71861224269d",
-  PRODUCTS = "68de0b4246ee71861224269e",
-  ORDERS = "68de0b4346ee71861224269f",
-  TABLES = "68de0b4446ee7186122426a0",
-  EMPLOYEES = "68de0b4646ee7186122426a1",
-  REPORTS = "68de0b4746ee7186122426a2",
-  SETTINGS = "68de0b4946ee7186122426a3",
+  POS = '691e4d0cecabec2abf379277',
+  ORDERS = '691e4d0cecabec2abf379278',
+  KITCHEN = '691e4d0cecabec2abf379279',
+  PRODUCTS = '691e4d0cecabec2abf37927a',
+  CATEGORIES = '691e4d0cecabec2abf37927b',
+  EMPLOYEES = '691e4d0cecabec2abf37927c',
+  ROLES = '691e4d0cecabec2abf37927d',
+  CUSTOMIZATION = '691e4d0cecabec2abf37927e',
+  REPORTS = '691e4d0cecabec2abf37927f',
 }
