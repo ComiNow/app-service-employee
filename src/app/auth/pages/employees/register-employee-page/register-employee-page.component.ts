@@ -6,6 +6,7 @@ import { DataService } from '../../../services/data.service';
 import { NavbarComponent } from '../../../../shared/components/app-navbar/navbar.component';
 import { AuthService } from '../../../services/auth.service';
 import { CommonModule } from '@angular/common';
+import { EmployeeService, Role } from '../employee.service';
 
 @Component({
   selector: 'app-register-employee-page',
@@ -19,19 +20,14 @@ export class RegisterEmployeePageComponent {
   isSubmitting = signal(false);
   dataService = inject(DataService);
   authService = inject(AuthService);
+  employeeService = inject(EmployeeService);
 
   showSuccessModal = signal(false);
   showErrorModal = signal(false);
 
   formUtils = FormUtils;
 
-  cargos = [
-    { id: '691e5fc362e1b40d467b7f6b', name: 'Cajero' },
-    { id: '691e5fc362e1b40d467b7f6c', name: 'Cocinero' },
-    { id: '691e5fc362e1b40d467b7f6d', name: 'Mesero' },
-    { id: '691e5fc362e1b40d467b7f6a', name: 'Gerente' },
-    { id: '691e5fc362e1b40d467b7f69', name: 'Administrador' },
-  ];
+  cargos = signal<Role[]>([]); 
 
   registerForm = this.fb.group(
     {
@@ -62,6 +58,22 @@ export class RegisterEmployeePageComponent {
       validators: [FormUtils.isFieldOneEqualFieldTwo('password', 'password2')],
     }
   );
+
+  ngOnInit(): void {
+    this.loadRoles();
+  }
+
+  loadRoles() {
+    this.employeeService.getRoles().subscribe({
+      next: (roles) => {
+        this.cargos.set(roles);
+      },
+      error: (err) => {
+        console.error('Error cargando roles:', err);
+      }
+    });
+  }
+
 
   closeSuccessModal() {
     this.showSuccessModal.set(false);

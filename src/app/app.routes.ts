@@ -3,6 +3,7 @@ import { NotAuthenticatedGuard } from './auth/guards/not-authenticated.guard';
 import { AuthenticatedGuard } from './auth/guards/authenticated.guard';
 import { RegisterEmployeePageComponent } from './auth/pages/employees/register-employee-page/register-employee-page.component';
 import { EmployeeManagementComponent } from './auth/pages/employees/employee-management/employee-management-page.component';
+import { CreateRoleComponent } from './auth/pages/employees/role-page/role-page.component';
 
 export const routes: Routes = [
   {
@@ -19,6 +20,16 @@ export const routes: Routes = [
     path: 'register-employee',
     component: RegisterEmployeePageComponent,
     canMatch: [AuthenticatedGuard], 
+  }, 
+  {
+    path: 'create-roles',    
+    component: CreateRoleComponent,
+    canMatch: [AuthenticatedGuard], 
+  },
+  {
+    path: 'roles/edit/:id',   
+    component: CreateRoleComponent,
+    canMatch: [AuthenticatedGuard],
   },
   {
     path: 'employee-management',

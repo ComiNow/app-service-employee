@@ -54,8 +54,8 @@
         <label class="label text-primary-dark text-sm">Cargo</label>
         <label class="select border-primary-dark">
           <select class="select select-sm text-primary-dark" formControlName="cargos">
-            @for (cargo of cargos; track cargo.id) {
-            <option [value]="cargo.id">{{ cargo.name }}</option>
+            @for (cargo of cargos(); track cargo.id) {
+              <option [value]="cargo.id">{{ cargo.name }}</option>
             }
           </select>
         </label>

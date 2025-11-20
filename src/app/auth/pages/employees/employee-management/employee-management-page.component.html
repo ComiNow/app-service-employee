@@ -1,137 +1,214 @@
 <app-navbar /><br /><br /><br />
 
 <div class="min-h-screen bg-sky-50 flex flex-col items-center py-10 px-4">
-  <div class="w-full max-w-4xl flex justify-end mb-4">
-    <button
-      routerLink="/register-employee"
-      class="mt-4 px-6 py-2 bg-primary-dark text-white font-semibold rounded-4xl transition duration-300 cursor-pointer"
-    >
-      Registrar empleado
-    </button>
-  </div>
-
+  
   <h2 class="text-3xl font-bold mb-8 text-center text-gray-800">
     Empleados y roles
   </h2>
 
-  <div
-    class="bg-sky-100 border border-gray-300 rounded-xl shadow-md p-6 w-full max-w-4xl"
-  >
-    <h3 class="text-xl font-semibold text-center mb-4 text-gray-800">
-      Lista de empleados
-    </h3>
+  <div class="bg-sky-100 border border-gray-300 rounded-xl shadow-md p-6 w-full max-w-4xl mb-8">
+    <div class="flex justify-between items-center mb-6">
+      <h3 class="text-xl font-bold text-gray-900">
+        Lista de empleados
+      </h3>
+      <button
+        routerLink="/register-employee"
+        class="bg-[#0f172a] text-[#22d3ee] text-sm font-bold px-5 py-2 rounded-full hover:opacity-90 transition cursor-pointer shadow-sm"
+      >
+        Registrar empleado
+      </button>
+    </div>
 
     @if (loading()) {
-    <div class="text-center py-4 text-gray-500">Cargando empleados...</div>
+      <div class="text-center py-4 text-gray-500">Cargando empleados...</div>
     } @else if (employees().length === 0) {
-    <div class="text-center py-4 text-gray-500">
-      No hay empleados registrados.
-    </div>
+      <div class="text-center py-4 text-gray-500">
+        No hay empleados registrados.
+      </div>
     } @else {
-    <div class="overflow-x-auto">
-      <table class="table-auto w-full text-left text-gray-800 border-collapse">
-        <thead>
-          <tr class="border-b border-gray-300">
-            <th class="py-2 px-3 font-semibold">Nombre completo</th>
-            <th class="py-2 px-3 font-semibold">Correo</th>
-            <th class="py-2 px-3 font-semibold">Rol asignado</th>
-            <th class="py-2 px-3 font-semibold text-center">Opciones</th>
-          </tr>
-        </thead>
+      <div class="overflow-x-auto">
+        <table class="table-auto w-full text-left text-gray-800 border-collapse">
+          <thead>
+            <tr class="border-b border-gray-300">
+              <th class="py-2 px-3 font-semibold">Nombre completo</th>
+              <th class="py-2 px-3 font-semibold">Correo</th>
+              <th class="py-2 px-3 font-semibold">Rol asignado</th>
+              <th class="py-2 px-3 font-semibold text-center">Opciones</th>
+            </tr>
+          </thead>
 
-        <tbody>
-          @for (emp of employees(); track emp.id) {
-          <tr class="hover:bg-sky-200 transition duration-150">
-            <td class="py-2 px-3 border-b-2 border-sidebar-gray">
-              {{ emp.fullName }}
-            </td>
-            <td class="py-2 px-3 border-b-2 border-sidebar-gray">
-              {{ emp.email }}
-            </td>
-            <td class="py-2 px-3 border-b-2 border-sidebar-gray">
-              {{ emp.role?.name }}
-            </td>
+          <tbody>
+            @for (emp of employees(); track emp.id) {
+            <tr class="hover:bg-sky-200 transition duration-150">
+              <td class="py-2 px-3 border-b-2 border-sidebar-gray">
+                {{ emp.fullName }}
+              </td>
+              <td class="py-2 px-3 border-b-2 border-sidebar-gray">
+                {{ emp.email }}
+              </td>
+              <td class="py-2 px-3 border-b-2 border-sidebar-gray">
+                {{ emp.role?.name }}
+              </td>
 
-            <td class="border-b-2 border-sidebar-gray text-center">
-              <div class="flex justify-center gap-2">
-                <button
-                  class="rounded p-1 hover:bg-blue-100 text-gray-400 cursor-pointer"
-                  (click)="onView(emp.id)"
-                >
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    class="w-5 h-5"
-                    fill="none"
-                    viewBox="0 0 24 24"
-                    stroke="currentColor"
+              <td class="border-b-2 border-sidebar-gray text-center">
+                <div class="flex justify-center gap-2">
+
+                  <button
+                    class="rounded p-1 hover:bg-blue-100 text-gray-400 cursor-pointer"
+                    (click)="onView(emp.id)"
+                    title="Ver empleado"
                   >
-                    <path
-                      stroke-linecap="round"
-                      stroke-linejoin="round"
-                      stroke-width="2"
-                      d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"
-                    />
-                    <path
-                      stroke-linecap="round"
-                      stroke-linejoin="round"
-                      stroke-width="2"
-                      d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"
-                    />
-                  </svg>
-                </button>
+                    <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                    </svg>
+                  </button>
 
-                <button
-                  class="rounded p-1 hover:bg-yellow-100 text-gray-400 cursor-pointer"
-                  (click)="onEdit(emp.id)"
-                >
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    class="w-5 h-5"
-                    fill="none"
-                    viewBox="0 0 24 24"
-                    stroke="currentColor"
+                  <button
+                    class="rounded p-1 hover:bg-yellow-100 text-gray-400 cursor-pointer"
+                    (click)="onEdit(emp.id)"
+                    title="Editar empleado"
                   >
-                    <path
-                      stroke-linecap="round"
-                      stroke-linejoin="round"
-                      stroke-width="2"
-                      d="M11 5h2M12 4v2m7.207 1.793a1 1 0 010 1.414l-10 10a1 1 0 01-.414.242l-4 1a1 1 0 01-1.242-1.242l1-4a1 1 0 01.242-.414l10-10a1 1 0 011.414 0z"
-                    />
-                  </svg>
-                </button>
+                    <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5h2M12 4v2m7.207 1.793a1 1 0 010 1.414l-10 10a1 1 0 01-.414.242l-4 1a1 1 0 01-1.242-1.242l1-4a1 1 0 01.242-.414l10-10a1 1 0 011.414 0z" />
+                    </svg>
+                  </button>
 
-                <button
-                  class="rounded p-1 hover:bg-red-100 text-gray-400 cursor-pointer"
-                  (click)="onDelete(emp.id)"
-                >
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    class="w-5 h-5"
-                    fill="none"
-                    viewBox="0 0 24 24"
-                    stroke="currentColor"
+                  <button
+                    class="rounded p-1 hover:bg-red-100 text-gray-400 cursor-pointer"
+                    (click)="onDelete(emp.id)"
+                    title="Eliminar empleado"
                   >
-                    <path
-                      stroke-linecap="round"
-                      stroke-linejoin="round"
-                      stroke-width="2"
-                      d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5-4h4a1 1 0 011 1v1H9V4a1 1 0 011-1zm-7 4h18"
-                    />
-                  </svg>
-                </button>
-              </div>
-            </td>
-          </tr>
-          } @empty {
-          <tr class="text-center">
-            <td colspan="4" class="py-4 text-gray-500">
-              No hay empleados para mostrar.
-            </td>
-          </tr>
-          }
-        </tbody>
-      </table>
-    </div>
+                    <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5-4h4a1 1 0 011 1v1H9V4a1 1 0 011-1zm-7 4h18" />
+                    </svg>
+                  </button>
+                </div>
+              </td>
+            </tr>
+            } @empty {
+            <tr class="text-center">
+              <td colspan="4" class="py-4 text-gray-500">
+                No hay empleados para mostrar.
+              </td>
+            </tr>
+            }
+          </tbody>
+        </table>
+      </div>
     }
+  </div>
+
+  <div class="bg-sky-100 border border-gray-300 rounded-xl shadow-md p-6 w-full max-w-4xl relative">
+    
+    <div class="flex justify-between items-center mb-6">
+      <h3 class="text-xl font-bold text-gray-900">
+        Roles disponibles
+      </h3>
+      <button 
+        routerLink="/create-roles"
+        class="bg-[#0f172a] text-[#22d3ee] text-sm font-bold px-5 py-2 rounded-full hover:opacity-90 transition cursor-pointer shadow-sm"
+      >
+        Añadir nuevo rol
+      </button>
+    </div>
+
+    <div class="flex flex-col gap-6">
+
+      @if (loadingRoles()) {
+        <div class="text-center text-gray-500 py-4">Cargando roles...</div>
+      } @else if (roles().length === 0) {
+        <div class="text-center text-gray-500 py-4">No hay roles configurados.</div>
+      } @else {
+        
+        @for (role of roles(); track role.id) {
+          <div class="grid grid-cols-1 md:grid-cols-3 gap-4 border-b border-sky-200 pb-4 last:border-0">
+            
+            <div class="col-span-1">
+              <h4 class="font-bold text-gray-900 text-lg">{{ role.name }}</h4>
+              
+              <div class="flex gap-2 mb-1">
+                @if(role.isSystem){
+                  <span class="text-xs bg-blue-200 text-blue-800 px-2 py-0.5 rounded-full font-medium">Del sistema</span>
+                }
+                @if(role.isDefault){
+                  <span class="text-xs bg-purple-200 text-purple-800 px-2 py-0.5 rounded-full font-medium">Predeterminado</span>
+                }
+              </div>
+
+              <div class="flex gap-3 mt-2 text-gray-800">
+                
+                <button class="hover:text-blue-600 cursor-pointer transition" (click)="onViewRole(role.id)" title="Ver detalles">
+                  <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M2.036 12.322a1.012 1.012 0 010-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.963-7.178z" />
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                  </svg>
+                </button>
+
+                <button 
+                  class="transition"
+                  [class.text-gray-400]="role.isSystem || role.isDefault || role.employeeCount > 0"
+                  [class.cursor-not-allowed]="role.isSystem || role.isDefault || role.employeeCount > 0"
+                  [class.hover:text-red-600]="!role.isSystem && !role.isDefault && role.employeeCount === 0"
+                  [class.cursor-pointer]="!role.isSystem && !role.isDefault && role.employeeCount === 0"
+                  [disabled]="role.isSystem || role.isDefault || role.employeeCount > 0"
+                  (click)="(!role.isSystem && !role.isDefault && role.employeeCount === 0) ? onDeleteRoleClick(role.id) : null"
+                  [title]="role.isSystem ? 'Rol de sistema no se puede borrar' : (role.isDefault ? 'Rol predeterminado no se puede borrar' : (role.employeeCount > 0 ? 'Tiene empleados asignados' : 'Borrar rol'))">
+                  <svg xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 24 24" class="w-4 h-4 mt-0.5">
+                    <path d="M3 6h18v2H3V6zm2 4h14v11a2 2 0 01-2 2H7a2 2 0 01-2-2V10zm5 2v7h2v-7h-2zm4 0v7h2v-7h-2zM9 4V2h6v2h5v2H4V4h5z"/>
+                  </svg>
+                </button>
+
+                <button 
+                  class="hover:text-yellow-600 cursor-pointer transition" 
+                  [routerLink]="['/roles/edit', role.id]" 
+                  title="Editar rol">
+                   <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M16.862 4.487l1.687-1.688a1.875 1.875 0 112.652 2.652L10.582 16.07a4.5 4.5 0 01-1.69 1.003l-3.914 1.074 1.074-3.914a4.5 4.5 0 011.003-1.69l11.072-11.072H16.86z" />
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 7.5L16.5 4.5" />
+                  </svg>
+                </button>
+
+              </div>
+            </div>
+
+            <div class="col-span-1 md:col-span-2 text-gray-800 text-sm flex items-center">
+              <p class="flex items-start gap-2">
+                <span class="text-green-600 font-bold">✓</span> 
+                {{ role.description }}
+              </p>
+            </div>
+          </div>
+        }
+      }
+    </div>
+  </div> 
+</div>
+
+<div class="modal text-center" [class.modal-open]="showDeleteModal()">
+  <div class="modal-box">
+    
+    <h3 class="font-bold text-lg">¿Eliminar Rol?</h3>
+    
+    <p class="py-4">
+      ¿Estás seguro de que deseas eliminar el rol <span class="font-bold text-gray-800">"{{ roleNameToDelete() }}"</span>? 
+      <br><span class="text-sm text-gray-500">Esta acción no se puede deshacer.</span>
+    </p>
+
+    <div class="modal-action flex justify-center gap-4">
+      
+      <button 
+        class="btn btn-ghost" 
+        (click)="closeDeleteModal()">
+        Cancelar
+      </button>
+
+      <button 
+        class="btn bg-primary-dark text-white" 
+        (click)="confirmDelete()">
+        Sí, eliminar
+      </button>
+
+    </div>
   </div>
 </div>
