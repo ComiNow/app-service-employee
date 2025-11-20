@@ -5,7 +5,7 @@ import { AuthenticatedGuard } from '../auth/guards/authenticated.guard';
 import { ModuleAccessGuard } from '../auth/guards/module-access.guard';
 import { AppModulesId } from '../auth/enum/app-modules';
 
-export const ordersKitchenRoutes: Routes = [
+export default [
   {
     path: '',
     component: KitchenLayoutComponent,
@@ -18,4 +18,4 @@ export const ordersKitchenRoutes: Routes = [
       },
     ],
   },
-];
+] satisfies Routes;
