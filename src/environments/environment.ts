@@ -1,4 +1,4 @@
 export const environment = {
   production: true,
-  baseUrl: 'https://z2j7v360-3000.use.devtunnels.ms/api',
+  baseUrl: 'https://d1rubx5h2u6ukl.cloudfront.net/api',
 };
