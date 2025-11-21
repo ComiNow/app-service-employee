@@ -13,6 +13,7 @@ import {
 } from '../../interfaces/kitchen-order.interface';
 import { KitchenOrdersService } from '../../services/kitchen-orders.service';
 import { ProductImagePipe } from '../../pipes/product-image.pipe';
+import { finalize } from 'rxjs';
 
 @Component({
   selector: 'order-card',
@@ -24,6 +25,7 @@ import { ProductImagePipe } from '../../pipes/product-image.pipe';
 export class OrderCardComponent {
   order = input.required<KitchenOrder>();
   maxVisibleItems = signal(3);
+  isUpdating = signal(false);
 
   @Output() orderDelivered = new EventEmitter<number>();
   @Output() orderClicked = new EventEmitter<KitchenOrder>();
@@ -31,12 +33,12 @@ export class OrderCardComponent {
   private kitchenOrdersService = inject(KitchenOrdersService);
 
   getVisibleItems() {
-  return this.order()?.items?.slice(0, this.maxVisibleItems());
-}
+    return this.order()?.items?.slice(0, this.maxVisibleItems());
+  }
 
-hasMoreItems(): boolean {
-  return (this.order()?.items?.length ?? 0) > this.maxVisibleItems();
-}
+  hasMoreItems(): boolean {
+    return (this.order()?.items?.length ?? 0) > this.maxVisibleItems();
+  }
 
   getStatusClass(): string {
     switch (this.order().status) {
@@ -67,14 +69,24 @@ hasMoreItems(): boolean {
   onMarkAsDelivered(event: Event): void {
     event.stopPropagation();
 
-    this.kitchenOrdersService.markOrderAsDelivered(this.order().id).subscribe({
-      next: () => {
-        this.orderDelivered.emit(this.order().id);
-      },
-      error: (error) => {
-        console.error('Error al marcar orden como entregada:', error);
-      },
-    });
+    if (this.isUpdating()) return;
+
+    this.isUpdating.set(true);
+
+    this.kitchenOrdersService.markOrderAsDelivered(this.order().id)
+      .pipe(
+        finalize(() => {
+          this.isUpdating.set(false);
+        })
+      )
+      .subscribe({
+        next: () => {
+          this.orderDelivered.emit(this.order().id);
+        },
+        error: (error) => {
+          console.error('Error al marcar orden como entregada:', error);
+        },
+      });
   }
 
   onCardClick(): void {

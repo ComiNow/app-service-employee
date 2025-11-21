@@ -20,7 +20,9 @@
     </div>
 
     @if (loading()) {
-      <div class="text-center py-4 text-gray-500">Cargando empleados...</div>
+      <div class="flex justify-center items-center py-10">
+        <span class="loading loading-spinner loading-lg text-primary"></span>
+      </div>
     } @else if (employees().length === 0) {
       <div class="text-center py-4 text-gray-500">
         No hay empleados registrados.
@@ -116,7 +118,9 @@
     <div class="flex flex-col gap-6">
 
       @if (loadingRoles()) {
-        <div class="text-center text-gray-500 py-4">Cargando roles...</div>
+        <div class="flex justify-center items-center py-10">
+          <span class="loading loading-spinner loading-lg text-primary"></span>
+        </div>
       } @else if (roles().length === 0) {
         <div class="text-center text-gray-500 py-4">No hay roles configurados.</div>
       } @else {
@@ -187,28 +191,14 @@
 
 <div class="modal text-center" [class.modal-open]="showDeleteModal()">
   <div class="modal-box">
-    
     <h3 class="font-bold text-lg">¿Eliminar Rol?</h3>
-    
     <p class="py-4">
       ¿Estás seguro de que deseas eliminar el rol <span class="font-bold text-gray-800">"{{ roleNameToDelete() }}"</span>? 
       <br><span class="text-sm text-gray-500">Esta acción no se puede deshacer.</span>
     </p>
-
     <div class="modal-action flex justify-center gap-4">
-      
-      <button 
-        class="btn btn-ghost" 
-        (click)="closeDeleteModal()">
-        Cancelar
-      </button>
-
-      <button 
-        class="btn bg-primary-dark text-white" 
-        (click)="confirmDelete()">
-        Sí, eliminar
-      </button>
-
+      <button class="btn btn-ghost" (click)="closeDeleteModal()">Cancelar</button>
+      <button class="btn bg-primary-dark text-white" (click)="confirmDelete()">Sí, eliminar</button>
     </div>
   </div>
 </div>

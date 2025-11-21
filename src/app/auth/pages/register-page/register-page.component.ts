@@ -18,6 +18,7 @@ export class RegisterPageComponent {
     dataService = inject(DataService);
 
     formUtils = FormUtils;
+    isSubmitting = signal(false);
 
     identificationType = [
         { id: 'CC', name: 'CC' },
@@ -63,9 +64,10 @@ export class RegisterPageComponent {
             return;
         }
 
+        this.isSubmitting.set(true);
+
         this.dataService.setRegisterData(this.registerForm.value);
 
         this.router.navigateByUrl('/auth/register-business');
     }
 }
-

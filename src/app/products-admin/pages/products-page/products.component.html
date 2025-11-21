@@ -1,9 +1,16 @@
 <div class="flex pt-16 h-[calc(110vh-4rem)]">
-  <category-sidebar
-    [categories]="categoriesResource.value() ?? []"
-    (categoryDeleted)="reloadCategories($event)"
-    [getCategoryName]="getCategoryName.bind(this)"
-  ></category-sidebar>
+  
+  @if (categoriesResource.isLoading()) {
+    <div class="w-72 h-full flex justify-center items-center bg-base-100 border-r border-base-200">
+      <span class="loading loading-spinner loading-lg text-primary"></span>
+    </div>
+  } @else {
+    <category-sidebar
+      [categories]="categoriesResource.value() ?? []"
+      (categoryDeleted)="reloadCategories($event)"
+      [getCategoryName]="getCategoryName.bind(this)"
+    ></category-sidebar>
+  }
 
   <div class="ml-72 flex-1 overflow-hidden p-2 pb-0">
     <div
@@ -11,7 +18,6 @@
     >
       <h2 class="text-xl font-bold text-center px-10">
         Productos
-        <!-- <span class="text-sm text-gray-500 badge">{{productsResource.value()?.count}}</span> -->
       </h2>
       <button
         routerLink="/products/new"
@@ -21,10 +27,16 @@
       </button>
     </div>
 
-    <product-table
-      [products]="filteredProducts()"
-      [getCategoryName]="getCategoryName.bind(this)"
-      (productDeleted)="reloadProducts($event)"
-    ></product-table>
+    @if (productsResource.isLoading()) {
+      <div class="flex justify-center items-center h-96">
+        <span class="loading loading-spinner loading-lg text-primary"></span>
+      </div>
+    } @else {
+      <product-table
+        [products]="filteredProducts()"
+        [getCategoryName]="getCategoryName.bind(this)"
+        (productDeleted)="reloadProducts($event)"
+      ></product-table>
+    }
   </div>
 </div>

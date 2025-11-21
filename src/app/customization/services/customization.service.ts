@@ -7,7 +7,6 @@ import { AuthService } from '../../auth/services/auth.service';
 
 const baseUrl = environment.baseUrl;
 
-// Actualizada según tu respuesta JSON del backend
 export interface CustomizationPayload {
   id?: number;
   businessId?: string;
@@ -17,7 +16,6 @@ export interface CustomizationPayload {
   fontSize: number;
   themeId: number;
   imageCarousel: string[];
-  // Agregamos esto para poder leer el nombre del tema que viene del back
   theme?: {
     id: number;
     name: string;
@@ -66,15 +64,12 @@ export class CustomizationService {
     if (error.error instanceof ErrorEvent) {
       errorMessage = `Error: ${error.error.message}`;
     } else {
-      // Si el backend envía un mensaje claro, lo usamos
       errorMessage = error.error?.message || `Server returned code: ${error.status}`;
       console.error('Backend error detail:', error.error);
     }
     console.error(errorMessage);
     return throwError(() => new Error(errorMessage));
   }
-
-  // --- MÉTODOS DE SUBIDA DE ARCHIVOS ---
 
   uploadLogo(imageFile: File): Observable<string | null> {
     if (!imageFile) return of(null);
@@ -90,14 +85,12 @@ export class CustomizationService {
   uploadMultipleCarouselImages(files: File[]): Observable<string[]> {
     if (!files || files.length === 0) return of([]);
     
-    // Reutilizamos la lógica de subida individual si tienes el endpoint, 
-    // o iteramos sobre el endpoint de carrusel
     const uploadObservables = files.map(file => {
         const formData = new FormData();
         formData.append('file', file);
         return this.http.post<FileUploadResponse>(`${baseUrl}/customization/files/carousel`, formData).pipe(
             map(res => res.fileName),
-            catchError(() => of(null)) // Si una falla, no rompemos todo el forkJoin
+            catchError(() => of(null))
         );
     });
 
@@ -107,27 +100,21 @@ export class CustomizationService {
     );
   }
 
-  // --- MÉTODOS PRINCIPALES ---
-
-  // GET: Concatena el ID a la URL
   getCustomization(businessIdFromComponent: string): Observable<CustomizationPayload> {
     const businessIdInToken = this.getBusinessIdForInternalUse();
     
-    // Validaciones de seguridad
     if (!businessIdInToken) return throwError(() => new Error('No token Business ID'));
     if (businessIdFromComponent && businessIdFromComponent !== businessIdInToken) {
       return throwError(() => new Error('Unauthorized retrieval attempt.'));
     }
 
-    // CORRECCIÓN: Agregar el ID
     return this.http.get<CustomizationPayload>(`${baseUrl}/customization/${businessIdInToken}`).pipe(
       catchError(this.handleError)
     );
   }
 
-  // POST: Crea nueva personalización
   saveCustomization(
-    customizationData: any, // Tipar según tu formulario
+    customizationData: any, 
     logoFile: File | null,
     carouselFiles: File[]
   ): Observable<any> {
@@ -155,7 +142,6 @@ export class CustomizationService {
     );
   }
 
-  // PATCH: Actualiza (URL sin ID, el back usa el del body o token)
   updateCustomization(
     businessIdFromComponent: string,
     customizationData: any, 
@@ -175,7 +161,7 @@ export class CustomizationService {
     return forkJoin([uploadNewLogo$, uploadNewCarouselImages$]).pipe(
       switchMap(([finalLogoUrl, newCarouselUrls]) => {
         const payload: CustomizationPayload = {
-          logo: finalLogoUrl, // Aquí va la URL (nueva o vieja)
+          logo: finalLogoUrl, 
           brand: customizationData.businessName,
           font: customizationData.fontFamily,
           fontSize: this.mapBaseFontSizeToNumber(customizationData.baseFontSize),
@@ -183,7 +169,6 @@ export class CustomizationService {
           imageCarousel: [...existingCarouselUrls, ...newCarouselUrls],
         };
 
-        // URL para PATCH (sin ID al final según tu indicación)
         return this.http.patch(`${baseUrl}/customization`, payload).pipe(
           catchError(this.handleError)
         );
@@ -191,14 +176,12 @@ export class CustomizationService {
     );
   }
 
-  // DELETE: Borrar (URL sin ID)
   deleteCustomization(): Observable<any> {
     return this.http.delete(`${baseUrl}/customization`).pipe(
       catchError(this.handleError)
     );
   }
 
-  // --- HELPERS ---
   private mapBaseFontSizeToNumber(baseSize: string): number {
     const sizes: {[key: string]: number} = { 'sm': 14, 'md': 16, 'lg': 18, 'xl': 20 };
     return sizes[baseSize.toLowerCase()] || 16;

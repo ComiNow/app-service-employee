@@ -31,10 +31,14 @@ export class EmployeeManagementComponent implements OnInit {
   }
 
   loadData() {
+
+    this.loading.set(true);
+    this.loadingRoles.set(true);
+
     this.employeeService.getEmployeesByBusiness().subscribe({
       next: (data) => {
         this.employees.set(data);
-        this.loading.set(false);
+        this.loading.set(false); 
       },
       error: () => this.loading.set(false)
     });
@@ -42,7 +46,7 @@ export class EmployeeManagementComponent implements OnInit {
     this.employeeService.getRoles().subscribe({
       next: (data) => {
         this.roles.set(data);
-        this.loadingRoles.set(false);
+        this.loadingRoles.set(false); 
       },
       error: (err) => {
         console.error('Error cargando roles', err);
@@ -88,7 +92,6 @@ export class EmployeeManagementComponent implements OnInit {
     this.employeeService.deleteRole(id).subscribe({
         next: () => {
           this.roles.update(current => current.filter(r => r.id !== id));
-
           this.closeDeleteModal();
         },
         error: (err) => {

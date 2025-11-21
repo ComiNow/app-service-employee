@@ -20,8 +20,16 @@
       <br>
 
       <button type="submit"
-        class="w-full mt-4 py-2 bg-accent-color text-primary-dark hover:bg-button-gray-hover font-semibold rounded-4xl transition duration-300 cursor-pointer flex items-center justify-center">
-        <span>Iniciar sesión</span>
+        [disabled]="isLoading()"
+        [class.opacity-50]="isLoading()"
+        class="w-full mt-4 py-2 bg-accent-color text-primary-dark hover:bg-button-gray-hover font-semibold rounded-4xl transition duration-300 cursor-pointer flex items-center justify-center gap-2">
+        
+        @if (isLoading()) {
+          <span class="loading loading-spinner loading-sm text-primary-dark"></span>
+        } @else {
+          <span>Iniciar sesión</span>
+        }
+
       </button>
 
       <div class="text-center text-accent-color">
@@ -34,7 +42,7 @@
       </div>
 
       @if (hasError()) {
-      <div @animate class="bg-red-200 text-red-800 p-4 rounded-xl mb-4 w-full text-center">
+      <div class="bg-red-200 text-red-800 p-4 rounded-xl mb-4 w-full text-center">
         Credenciales inválidas. Intenta de nuevo.
       </div>
       }

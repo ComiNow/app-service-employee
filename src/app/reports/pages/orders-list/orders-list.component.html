@@ -9,7 +9,23 @@
     </div>
 
     <div class="rounded-2xl shadow p-4" style="background-color: #F0EDED">
-      <orders-table [orders]="filtersOrders() || []"></orders-table>
+      
+      @if (ordersResource.isLoading()) {
+        <div class="flex justify-center items-center py-12">
+          <span class="loading loading-spinner loading-lg text-primary"></span>
+        </div>
+      } @else if (filtersOrders().length === 0) {
+        <div class="text-center text-gray-500 py-10 text-lg">
+          @if (!customStartDate()) {
+            Selecciona un rango de fechas para ver las órdenes.
+          } @else {
+            No hay órdenes para mostrar en este rango.
+          }
+        </div>
+      } @else {
+        <orders-table [orders]="filtersOrders() || []"></orders-table>
+      }
+
     </div>
 
   </div>

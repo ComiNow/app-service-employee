@@ -45,6 +45,9 @@ export class BusinessCustomizationComponent implements OnInit, OnDestroy {
   businessId: string | null = null;
   showSuccessModalValue = signal(false);
   isThemeDropdownOpen = signal(false);
+  isLoadingInitial = signal(true);
+  isSaving = signal(false);
+
   currentYear = new Date().getFullYear();
   logoPreviewUrl: string | ArrayBuffer | null = null;
   showPreviewModal: boolean = false;
@@ -382,6 +385,8 @@ export class BusinessCustomizationComponent implements OnInit, OnDestroy {
     this.businessId = this.authService.user()?.businessId || null;
     if (this.businessId) {
       this.loadExistingCustomization(this.businessId);
+    } else {
+      this.isLoadingInitial.set(false);
     }
   }
 
@@ -526,6 +531,8 @@ export class BusinessCustomizationComponent implements OnInit, OnDestroy {
       return;
     }
 
+    this.isSaving.set(true);
+
     const formValues = this.businessForm.getRawValue();
 
     const newCarouselFilesToUpload: File[] = this.carouselImages.controls
@@ -568,6 +575,7 @@ export class BusinessCustomizationComponent implements OnInit, OnDestroy {
         return of(null);
       }),
       finalize(() => {
+        this.isSaving.set(false);
         if (!this.isCustomizationExisting && this.businessId) {
             this.loadExistingCustomization(this.businessId); 
         }
@@ -587,9 +595,12 @@ export class BusinessCustomizationComponent implements OnInit, OnDestroy {
   }
 
   loadExistingCustomization(businessId: string): void {
+    this.isLoadingInitial.set(true);
+    
     if (!businessId) {
       console.warn('No businessId proporcionado para cargar la personalización.');
       this.isCustomizationExisting = false; 
+      this.isLoadingInitial.set(false);
       return;
     }
 
@@ -621,6 +632,7 @@ export class BusinessCustomizationComponent implements OnInit, OnDestroy {
 
         this.loadGoogleFontDynamically(data.font);
         this.isCustomizationExisting = true; 
+        this.isLoadingInitial.set(false);
       },
       error: (error) => {
         console.warn(`No se encontró personalización para el businessId ${businessId}. Procediendo con formulario vacío para creación o configuración inicial.`);
@@ -637,7 +649,8 @@ export class BusinessCustomizationComponent implements OnInit, OnDestroy {
         this.logoPreviewUrl = null;
         this.carouselImagePreviews = [];
         this.loadGoogleFontDynamically('sans-serif'); 
-        this.isCustomizationExisting = false; 
+        this.isCustomizationExisting = false;
+        this.isLoadingInitial.set(false); 
       }
     });
   }

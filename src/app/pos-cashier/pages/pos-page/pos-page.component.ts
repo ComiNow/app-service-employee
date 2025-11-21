@@ -6,10 +6,10 @@ import { rxResource } from '@angular/core/rxjs-interop';
 import { ProductsService } from '../../services/products.service';
 import { CategoriesService } from '../../services/categories.service';
 import { CartService } from '../../services/cart.service';
-import { CartItemComponent } from "../../components/cart-item/cart-item.component";
 import { SidebarMainComponent } from "../../components/sidebar-main/sidebar-main.component";
 import { SidebarPaymentComponent } from "../../components/sidebar-payment/sidebar-payment.component";
 import { SidebarService } from '../../services/sidebar.service';
+
 @Component({
   selector: 'app-home-page',
   imports: [CategoryCardComponent, ProductCardComponent, CommonModule, SidebarMainComponent, SidebarPaymentComponent],
@@ -22,11 +22,11 @@ export class PosPageComponent {
   cartService = inject(CartService)
   sidebarService = inject(SidebarService)
 
-    categoriesResource = rxResource({
+  categoriesResource = rxResource({
     loader: () => this.categoriesService.getCategories(),
   });
 
-    productsResource = rxResource({
+  productsResource = rxResource({
     loader: () => this.productsService.getProducts(),
   });
 
@@ -50,6 +50,4 @@ export class PosPageComponent {
     const inputElement = event.target as HTMLInputElement;
     this.searchText.set(inputElement.value);
   }
-
-
- }
+}

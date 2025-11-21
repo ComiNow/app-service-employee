@@ -1,5 +1,4 @@
 <div class="kitchen-order-card" (click)="onCardClick()">
-  <!-- Header con mesa y estado -->
   <div class="card-header">
     <div class="mesa-info">
       <h3 class="mesa-title">MESA #{{ order().table }}</h3>
@@ -12,7 +11,6 @@
     </div>
   </div>
 
-  <!-- Products List -->
   <div class="products-section">
     <div class="products-scroll-container" [class.scrollable]="hasMoreItems()">
       @for (item of getVisibleItems(); track item.id) {
@@ -36,7 +34,6 @@
       </div>
       }
 
-      <!-- Mostrar más productos si están ocultos -->
       @if (hasMoreItems()) { @for (item of
       order().items.slice(maxVisibleItems()); track item.id) {
       <div class="product-item">
@@ -61,7 +58,6 @@
     </div>
   </div>
 
-  <!-- Footer con total y botón -->
   <div class="card-footer">
     <div class="order-summary">
       <div class="summary-row">
@@ -75,8 +71,18 @@
       </div>
     </div>
 
-    <button class="deliver-button" (click)="onMarkAsDelivered($event)">
-      <span class="button-text">Listo!</span>
+    <button 
+      class="deliver-button" 
+      (click)="onMarkAsDelivered($event)"
+      [disabled]="isUpdating()"
+      [class.opacity-70]="isUpdating()">
+      
+      @if (isUpdating()) {
+        <span class="loading loading-spinner loading-sm text-white"></span>
+      } @else {
+        <span class="button-text">Listo!</span>
+      }
+      
     </button>
   </div>
 </div>

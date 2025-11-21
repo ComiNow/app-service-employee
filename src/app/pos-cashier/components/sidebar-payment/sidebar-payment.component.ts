@@ -5,6 +5,7 @@ import { SidebarService } from '../../services/sidebar.service';
 import { HttpClient } from '@angular/common/http';
 import { FormsModule } from '@angular/forms';
 import { OrderResponse, OrderService, OrderPayload } from '../../../pos-cashier/services/order.service';
+import { finalize } from 'rxjs';
 
 type PaymentMethod = 'CASH' | 'BANK_TRANSFER' | 'CREDIT_CARD' | 'DEBIT_CARD';
 
@@ -38,6 +39,7 @@ export class SidebarPaymentComponent {
   showSuccessModal = signal(false);
   showTableErrorModal = signal(false);
   showPaymentErrorModal = signal(false);
+  isProcessing = signal(false);
 
   selectPaymentMethod(method: PaymentMethod) {
     this.selectedPaymentMethod = method;
@@ -53,6 +55,8 @@ export class SidebarPaymentComponent {
       return;
     }
 
+    this.isProcessing.set(true);
+
     const orderPayload:  Omit<OrderPayload, 'businessId'> = {
       table: Number(this.selectedTable),
       status: 'PAID',
@@ -61,7 +65,11 @@ export class SidebarPaymentComponent {
     };
 
 
-    this.orderService.createOrder(orderPayload).subscribe({
+    this.orderService.createOrder(orderPayload)
+      .pipe(
+        finalize(() => this.isProcessing.set(false))
+      )
+      .subscribe({
       next: (response: OrderResponse) => {
         console.log('Pedido enviado con éxito:', response);
         this.showSuccessModal.set(true);

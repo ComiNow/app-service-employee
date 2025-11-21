@@ -40,13 +40,21 @@
   </div>
   <button
     type="submit"
-    class="bg-primary-dark  hover:bg-primborder-primary-dark-hover text-accent-color rounded-xl cursor-pointer px-4 py-1 font-bold w-full mb-2"
+    class="bg-primary-dark hover:bg-primborder-primary-dark-hover text-accent-color rounded-xl cursor-pointer px-4 py-1 font-bold w-full mb-2 flex justify-center items-center gap-2"
+    [disabled]="isProcessing()"
+    [class.opacity-70]="isProcessing()"
     (click)="finalizeOrder()"
   >
-    Finalizar
+    @if (isProcessing()) {
+      <span class="loading loading-spinner loading-sm text-accent-color"></span>
+    } @else {
+      Finalizar
+    }
   </button>
   <button
     type="button"
+    [disabled]="isProcessing()"
+    [class.opacity-70]="isProcessing()"
     class="border border-primary-dark text-primary-dark rounded-xl cursor-pointer px-4 py-1 font-bold w-full hover:bg-red-50"
     (click)="backToCart()"
   >

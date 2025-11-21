@@ -13,6 +13,7 @@ import {
 } from '../../interfaces/kitchen-order.interface';
 import { KitchenOrdersService } from '../../services/kitchen-orders.service';
 import { ProductImagePipe } from '../../pipes/product-image.pipe';
+import { finalize } from 'rxjs';
 
 @Component({
   selector: 'order-detail-modal',
@@ -47,6 +48,8 @@ export class OrderDetailModalComponent {
   @Input() isVisible = signal(false);
   @Output() modalClosed = new EventEmitter<void>();
   @Output() orderDelivered = new EventEmitter<number>();
+
+  isUpdating = signal(false);
 
   private kitchenOrdersService = inject(KitchenOrdersService);
 
@@ -85,9 +88,15 @@ export class OrderDetailModalComponent {
 
   onMarkAsDelivered(): void {
     const orderId = this.order()?.id;
-    if (!orderId) return;
+    if (!orderId || this.isUpdating()) return;
 
-    this.kitchenOrdersService.markOrderAsDelivered(orderId).subscribe({
+    this.isUpdating.set(true);
+
+    this.kitchenOrdersService.markOrderAsDelivered(orderId)
+    .pipe(
+      finalize(() => this.isUpdating.set(false))
+    )
+    .subscribe({
       next: () => {
         this.orderDelivered.emit(orderId);
         this.closeModal();

@@ -23,7 +23,6 @@
           }
         </label>
 
-
         <label class="label text-primary-dark text-sm">Número de identificación</label>
         <label class="floating-label">
           <input type="text" class="input input-sm text-primary-dark border-primary-dark"
@@ -52,13 +51,23 @@
         </label>
 
         <label class="label text-primary-dark text-sm">Cargo</label>
-        <label class="select border-primary-dark">
-          <select class="select select-sm text-primary-dark" formControlName="cargos">
-            @for (cargo of cargos(); track cargo.id) {
-              <option [value]="cargo.id">{{ cargo.name }}</option>
-            }
-          </select>
-        </label>
+        
+        @if (loadingRoles()) {
+
+          <div class="w-full h-[32px] border border-primary-dark rounded flex items-center justify-center bg-gray-50 opacity-70">
+             <span class="loading loading-spinner loading-sm text-primary"></span>
+          </div>
+        } @else {
+          <label class="select border-primary-dark">
+            <select class="select select-sm text-primary-dark" formControlName="cargos">
+              <option value="" disabled selected>Seleccione un cargo</option>
+              @for (cargo of cargos(); track cargo.id) {
+                <option [value]="cargo.id">{{ cargo.name }}</option>
+              }
+            </select>
+          </label>
+        }
+
         @if ( formUtils.isValidField(registerForm, 'cargos')) {
         <div class="text-center">
           <label class="form-text text-error">
@@ -79,6 +88,7 @@
           </div>
           }
         </label>
+
         <label class="label text-primary-dark text-sm">Confirmar contraseña</label>
         <label class="floating-label">
           <input type="password" class="input input-sm text-primary-dark border-primary-dark"
@@ -100,10 +110,18 @@
           </div>
         </label>
 
-        <div class="text-center">
+        <div class="text-center mt-4">
           <button type="submit"
-            class="mt-4 px-6 py-2 bg-primary-dark text-accent-color font-semibold rounded-4xl transition duration-300 cursor-pointer">
-            Registrar
+            [disabled]="isSubmitting() || loadingRoles()"
+            [class.opacity-50]="isSubmitting() || loadingRoles()"
+            class="px-6 py-2 bg-primary-dark text-accent-color font-semibold rounded-4xl transition duration-300 cursor-pointer min-w-[120px] flex justify-center mx-auto items-center gap-2">
+            
+            @if (isSubmitting()) {
+              <span class="loading loading-spinner loading-sm"></span>
+            } @else {
+              Registrar
+            }
+            
           </button><br>
         </div>
       </form>
@@ -127,7 +145,6 @@
           </div>
         </div>
       </div>
-
 
     </div>
   </div>

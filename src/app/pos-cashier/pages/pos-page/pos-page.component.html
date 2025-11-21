@@ -31,7 +31,14 @@
 
     @if (showSections()) {
     <h1 class="font-bold text-2xl my-6 flex justify-center">Categorías</h1>
-    <category-card [categories]="categoriesResource.value() ?? []" />
+    
+    @if (categoriesResource.isLoading()) {
+      <div class="flex justify-center w-full my-4">
+        <span class="loading loading-spinner loading-lg text-primary"></span>
+      </div>
+    } @else {
+      <category-card [categories]="categoriesResource.value() ?? []" />
+    }
     }
 
     <h1 class="font-bold text-2xl m-6 flex justify-center">
@@ -40,10 +47,20 @@
     <div
       class="grid grid-cols-1 sm:grid-cols-1 md:grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-6 p-2 mx-6 overflow-x-auto sm:overflow-x-hidden"
     >
-      @for (product of filteredProducts(); track product.id) {
-      <div>
-        <product-card [products]="[product]" />
-      </div>
+      @if (productsResource.isLoading()) {
+        <div class="col-span-full flex justify-center items-center py-10">
+          <span class="loading loading-spinner loading-lg text-primary"></span>
+        </div>
+      } @else if (filteredProducts().length === 0) {
+        <div class="col-span-full text-center text-gray-500 text-lg mt-10">
+          No se encontraron productos.
+        </div>
+      } @else {
+        @for (product of filteredProducts(); track product.id) {
+        <div>
+          <product-card [products]="[product]" />
+        </div>
+        }
       }
     </div>
   </div>

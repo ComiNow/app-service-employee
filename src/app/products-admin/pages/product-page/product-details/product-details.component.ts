@@ -7,6 +7,7 @@ import { FormUtils } from '../../../../utils/form-utils';
 import { CommonModule } from '@angular/common';
 import { CategoriesService } from '../../../products/services/categories.service';
 import { Category } from '../../../products/interfaces/category.interface';
+import { finalize } from 'rxjs';
 
 @Component({
   selector: 'product-details',
@@ -29,6 +30,7 @@ export class ProductDetailsComponent {
   showSuccessModalUpdate = signal(false);
   showSuccessModalCreate = signal(false);
   imageChanged = signal(false);
+  isSaving = signal(false);
 
   productForm = this.fb.group({
     name: ['', Validators.required],
@@ -121,6 +123,8 @@ export class ProductDetailsComponent {
       return;
     }
 
+    this.isSaving.set(true);
+
     const formValue = this.productForm.value;
 
     const productLike: Partial<Product> = {
@@ -134,6 +138,9 @@ export class ProductDetailsComponent {
     if (this.isCreateMode()) {
       this.productsService
         .createProduct(productLike, this.imageFile)
+        .pipe(
+          finalize(() => this.isSaving.set(false))
+        )
         .subscribe({
           next: () => {
             this.showSuccessModalCreate.set(true);
@@ -146,6 +153,9 @@ export class ProductDetailsComponent {
     } else {
       this.productsService
         .updateProduct(this.product().id, productLike, this.imageFile)
+        .pipe(
+          finalize(() => this.isSaving.set(false))
+        )
         .subscribe({
           next: () => {
             this.showSuccessModalUpdate.set(true);

@@ -26,16 +26,29 @@
         </div>
 
         <button
-          class="bg-button-gray hover:bg-button-gray-hover text-white rounded-2xl cursor-pointer px-4 py-3 font-bold w-full mb-4"
+          class="bg-button-gray hover:bg-button-gray-hover text-white rounded-2xl cursor-pointer px-4 py-3 font-bold w-full mb-4 flex items-center justify-center gap-2"
+          [disabled]="isCheckingOut() || isClearing()"
+          [class.opacity-70]="isCheckingOut() || isClearing()"
+          (click)="onCheckout()"
         >
-          Proceder al Pago
+          @if (isCheckingOut()) {
+            <span class="loading loading-spinner loading-sm text-white"></span>
+          } @else {
+            Proceder al Pago
+          }
         </button>
 
         <button
-          class="border border-button-gray text-button-gray rounded-2xl cursor-pointer px-4 py-3 font-bold w-full hover:bg-gray-100"
+          class="border border-button-gray text-button-gray rounded-2xl cursor-pointer px-4 py-3 font-bold w-full hover:bg-gray-100 flex items-center justify-center gap-2"
+          [disabled]="isClearing() || isCheckingOut()"
+          [class.opacity-70]="isClearing() || isCheckingOut()"
           (click)="clearCart()"
         >
-          Vaciar Carrito
+           @if (isClearing()) {
+            <span class="loading loading-spinner loading-sm text-button-gray"></span>
+          } @else {
+            Vaciar Carrito
+          }
         </button>
 
         <div class="mt-6">

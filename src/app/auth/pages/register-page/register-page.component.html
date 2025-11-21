@@ -131,8 +131,14 @@
 
 <div class="text-center">
   <button type="button" (click)="continueToNextPage()"
-    class="mt-4 px-6 py-2 bg-primary-dark text-accent-color font-semibold rounded-4xl transition duration-300 cursor-pointer">
-    Continuar
+    [disabled]="isSubmitting()"
+    [class.opacity-50]="isSubmitting()"
+    class="mt-4 px-6 py-2 bg-primary-dark text-accent-color font-semibold rounded-4xl transition duration-300 cursor-pointer min-w-[140px] inline-flex items-center justify-center gap-2">
+    @if (isSubmitting()) {
+      <span class="loading loading-spinner loading-sm"></span>
+    } @else {
+      Continuar
+    }
   </button><br>
   <span>
     ¿Ya tienes una cuenta?

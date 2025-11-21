@@ -44,7 +44,6 @@ export class CategoryProductsPageComponent implements OnInit {
       error: (error) => {
         console.error('Error loading category', error);
         this.loading.set(false);
-        // Handle error
       }
     });
 
@@ -61,7 +60,6 @@ export class CategoryProductsPageComponent implements OnInit {
       error: (error) => {
         console.error('Error loading products', error);
         this.loading.set(false);
-        // Manejar el error
       }
     });
   }

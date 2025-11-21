@@ -1,4 +1,4 @@
-import { Component, inject, signal } from '@angular/core';
+import { Component, inject, signal, OnInit } from '@angular/core'; 
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
 import { FormUtils } from '../../../../utils/form-utils';
@@ -10,11 +10,11 @@ import { EmployeeService, Role } from '../employee.service';
 
 @Component({
   selector: 'app-register-employee-page',
-  imports: [CommonModule, ReactiveFormsModule, NavbarComponent],
+  imports: [CommonModule, ReactiveFormsModule, NavbarComponent], 
   standalone: true,
   templateUrl: './register-employee-page.component.html',
 })
-export class RegisterEmployeePageComponent {
+export class RegisterEmployeePageComponent implements OnInit {
   fb = inject(FormBuilder);
   router = inject(Router);
   isSubmitting = signal(false);
@@ -28,6 +28,7 @@ export class RegisterEmployeePageComponent {
   formUtils = FormUtils;
 
   cargos = signal<Role[]>([]); 
+  loadingRoles = signal(true);
 
   registerForm = this.fb.group(
     {
@@ -64,12 +65,15 @@ export class RegisterEmployeePageComponent {
   }
 
   loadRoles() {
+    this.loadingRoles.set(true); 
     this.employeeService.getRoles().subscribe({
       next: (roles) => {
         this.cargos.set(roles);
+        this.loadingRoles.set(false); 
       },
       error: (err) => {
         console.error('Error cargando roles:', err);
+        this.loadingRoles.set(false); 
       }
     });
   }
@@ -91,16 +95,12 @@ export class RegisterEmployeePageComponent {
     });
 
     if (this.registerForm.invalid) {
-      for (const controlName in this.registerForm.controls) {
-        const control = this.registerForm.get(controlName);
-        console.log(`${controlName}:`, control?.errors);
-      }
       return;
     }
 
     const formValue = this.registerForm.value;
 
-    this.isSubmitting.set(true);
+    this.isSubmitting.set(true); 
 
     this.authService
       .registerEmployee(
@@ -113,12 +113,12 @@ export class RegisterEmployeePageComponent {
       .subscribe({
         next: () => {
           this.showSuccessModal.set(true);
-          this.isSubmitting.set(false);
+          this.isSubmitting.set(false); 
         },
         error: (err) => {
           console.error('Error:', err);
           this.showErrorModal.set(true);
-          this.isSubmitting.set(false);
+          this.isSubmitting.set(false); 
         },
       });
   }

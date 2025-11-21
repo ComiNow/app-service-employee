@@ -17,12 +17,13 @@
   </h2>
 
   @if (loading()) {
-    <div class="text-center text-xl text-gray-500">Cargando configuración...</div>
+    <div class="flex justify-center items-center py-20 w-full">
+      <span class="loading loading-spinner loading-lg text-primary"></span>
+    </div>
   } @else {
     
     <form [formGroup]="form" (ngSubmit)="onSubmit()" class="w-full max-w-4xl">
       
-
       <div class="mb-8">
         <label class="block text-lg font-bold text-gray-900 mb-2">Nombre del rol:</label>
         <input 
@@ -93,7 +94,6 @@
         }
       </div>
 
-
       <div class="flex justify-center gap-6">
         
         @if (isEditMode() && !hasChanges) {
@@ -110,17 +110,22 @@
           <button 
             type="button" 
             routerLink="/employee-management"
-            class="px-8 py-3 rounded-full border-2 border-gray-900 font-bold text-gray-800 hover:bg-gray-100 transition cursor-pointer text-lg"
+            [disabled]="isSubmitting()"
+            class="px-8 py-3 rounded-full border-2 border-gray-900 font-bold text-gray-800 hover:bg-gray-100 transition cursor-pointer text-lg disabled:opacity-50 disabled:cursor-not-allowed"
           >
             Cancelar
           </button>
 
           <button 
             type="submit"
-            [disabled]="form.invalid || selectedPermissions().size === 0"
-            class="px-10 py-3 rounded-full bg-[#0f172a] text-[#22d3ee] font-bold hover:opacity-90 transition cursor-pointer text-lg shadow-lg disabled:opacity-50 disabled:cursor-not-allowed"
+            [disabled]="form.invalid || selectedPermissions().size === 0 || isSubmitting()"
+            class="px-10 py-3 rounded-full bg-[#0f172a] text-[#22d3ee] font-bold hover:opacity-90 transition cursor-pointer text-lg shadow-lg disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
           >
-            {{ isEditMode() ? 'Guardar cambios' : 'Añadir' }}
+            @if(isSubmitting()) {
+              <span class="loading loading-spinner loading-sm"></span>
+            } @else {
+              {{ isEditMode() ? 'Guardar cambios' : 'Añadir' }}
+            }
           </button>
         }
       </div>

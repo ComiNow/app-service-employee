@@ -1,4 +1,4 @@
-import { Component, inject, signal } from '@angular/core';
+import { Component, inject, signal, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { NavbarComponent } from '../../../../shared/components/app-navbar/navbar.component';
@@ -11,7 +11,7 @@ import { EmployeeService, Permission } from '../employee.service';
   standalone: true,
   templateUrl: './role-page.component.html',
 })
-export class CreateRoleComponent {
+export class CreateRoleComponent implements OnInit {
   private fb = inject(FormBuilder);
   private employeeService = inject(EmployeeService);
   private router = inject(Router);
@@ -21,12 +21,11 @@ export class CreateRoleComponent {
   modules = signal<Permission[]>([]); 
   loading = signal(true);
   isEditMode = signal(false);
+  isSubmitting = signal(false); 
   roleId: string | null = null;
   
-  // Señal para el título dinámico
   roleName = signal(''); 
 
-  // Lógica de detección de cambios
   private initialPermissions = new Set<string>();
   permissionsChanged = signal(false);
   
@@ -45,7 +44,7 @@ export class CreateRoleComponent {
             name: m.name,
             displayName: m.display_name || m.displayName,
             description: m.description,
-            icon: m.icon, // Asegúrate que el backend envíe el nombre del icono (ej: 'point_of_sale')
+            icon: m.icon, 
             isActive: m.is_active
         }));
         this.modules.set(cleanData);
@@ -150,6 +149,8 @@ export class CreateRoleComponent {
       return;
     }
 
+    this.isSubmitting.set(true); 
+
     const formData = {
       ...this.form.value,
       permissions: Array.from(this.selectedPermissions())
@@ -157,13 +158,23 @@ export class CreateRoleComponent {
 
     if (this.isEditMode() && this.roleId) {
       this.employeeService.updateRole(this.roleId, formData).subscribe({
-        next: () => this.router.navigate(['/employee-management']),
-        error: (err) => console.error(err)
+        next: () => {
+          this.router.navigate(['/employee-management']);
+        },
+        error: (err) => {
+          console.error(err);
+          this.isSubmitting.set(false); 
+        }
       });
     } else {
       this.employeeService.createRole(formData).subscribe({
-        next: () => this.router.navigate(['/employee-management']),
-        error: (err) => console.error(err)
+        next: () => {
+          this.router.navigate(['/employee-management']);
+        },
+        error: (err) => {
+          console.error(err);
+          this.isSubmitting.set(false); 
+        }
       });
     }
   }
