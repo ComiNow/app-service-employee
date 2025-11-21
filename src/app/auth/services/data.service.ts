@@ -5,20 +5,28 @@ import { BehaviorSubject, Observable } from 'rxjs';
   providedIn: 'root'
 })
 export class DataService {
-  private _registerData = new BehaviorSubject<any | null>(null);
+  private readonly STORAGE_KEY = 'register_step_1_data';
+  private _registerData = new BehaviorSubject<any | null>(this.loadFromStorage());
   registerData$: Observable<any | null> = this._registerData.asObservable();
-
-  constructor() { }
 
   setRegisterData(data: any) {
     this._registerData.next(data);
+    sessionStorage.setItem(this.STORAGE_KEY, JSON.stringify(data));
   }
 
   getRegisterData(): any | null {
-    return this._registerData.getValue();
+    const data = this._registerData.getValue();
+    if (data) return data;
+    return this.loadFromStorage();
   }
 
   clearRegisterData() {
     this._registerData.next(null);
+    sessionStorage.removeItem(this.STORAGE_KEY);
+  }
+
+  private loadFromStorage(): any | null {
+    const stored = sessionStorage.getItem(this.STORAGE_KEY);
+    return stored ? JSON.parse(stored) : null;
   }
 }

@@ -11,6 +11,7 @@ import {
   Department,
   City,
 } from '../../services/colombia-api.service';
+import { finalize } from 'rxjs';
 
 @Component({
   selector: 'app-register-business',
@@ -26,6 +27,8 @@ export class RegisterBusinessComponent implements OnInit {
   colombiaApiService = inject(ColombiaApiService);
 
   showSuccessModalValue = signal(false);
+  isSubmitting = signal(false);
+  
   currentYear = new Date().getFullYear();
   logoPreviewUrl: string | ArrayBuffer | null = null;
 
@@ -73,6 +76,7 @@ export class RegisterBusinessComponent implements OnInit {
 
   ngOnInit(): void {
     this.registerDataFromPage1 = this.dataService.getRegisterData();
+    
     if (!this.registerDataFromPage1) {
       this.router.navigateByUrl('/auth/register');
       return;
@@ -119,10 +123,8 @@ export class RegisterBusinessComponent implements OnInit {
   loadCitiesByDepartment(departmentId: number): void {
     this.loadingCities.set(true);
     this.cities = [];
-    console.log('Cargando ciudades para departamento ID:', departmentId);
     this.colombiaApiService.getCitiesByDepartmentId(departmentId).subscribe({
       next: (cities) => {
-        console.log('Ciudades cargadas:', cities.length, cities);
         this.cities = cities;
         this.loadingCities.set(false);
       },
@@ -161,15 +163,15 @@ export class RegisterBusinessComponent implements OnInit {
     });
 
     if (this.businessForm.invalid) {
-      console.error('Formulario de negocio inválido');
       return;
     }
 
     if (!this.registerDataFromPage1) {
-      console.error('Datos de la primera página no encontrados.');
       this.router.navigateByUrl('/auth/register');
       return;
     }
+
+    this.isSubmitting.set(true);
 
     const businessFormValues = this.businessForm.value;
     const registerDataPage1Values = this.registerDataFromPage1;
@@ -178,24 +180,25 @@ export class RegisterBusinessComponent implements OnInit {
       businessName: businessFormValues.businessName,
       businessEmail: businessFormValues.businessEmail,
       businessPhone: businessFormValues.businessPhoneNumber,
+      
       adminFullName: registerDataPage1Values.fullName,
       adminEmail: registerDataPage1Values.email,
       adminPhone: registerDataPage1Values.phoneNumber,
       adminIdentificationNumber: registerDataPage1Values.identificationNumber,
       adminIdentificationType: registerDataPage1Values.identificationType,
       adminPassword: registerDataPage1Values.password,
+      
       locationState: businessFormValues.department,
       locationCity: businessFormValues.city,
       locationPostalCode: businessFormValues.postalCode,
       locationAddress: businessFormValues.address,
     };
 
-    console.log(
-      'Datos finales combinados (payload) para enviar:',
-      payloadForBackend
-    );
-
-    this.authService.registerBusiness(payloadForBackend).subscribe({
+    this.authService.registerBusiness(payloadForBackend)
+    .pipe(
+      finalize(() => this.isSubmitting.set(false))
+    )
+    .subscribe({
       next: (response) => {
         this.showSuccessModalValue.set(true);
         this.dataService.clearRegisterData();
@@ -208,56 +211,9 @@ export class RegisterBusinessComponent implements OnInit {
         console.error('Error al registrar negocio:', error);
         alert(
           'Error al registrar negocio: ' +
-            (error.error?.message || 'Hubo un problema.')
+            (error.error?.message || 'Verifique los datos ingresados.')
         );
       },
     });
-  }
-
-  getFontSize(
-    baseSize: string | null | undefined,
-    element: 'h1' | 'h2' | 'p' | 'button' | 'footer'
-  ): string {
-    if (!baseSize) return '16px';
-
-    const sizes: {
-      [key: string]: {
-        h1: string;
-        h2: string;
-        p: string;
-        button: string;
-        footer: string;
-      };
-    } = {
-      sm: {
-        h1: '1.5rem',
-        h2: '1.25rem',
-        p: '0.875rem',
-        button: '0.875rem',
-        footer: '0.75rem',
-      },
-      md: {
-        h1: '2rem',
-        h2: '1.5rem',
-        p: '1rem',
-        button: '1rem',
-        footer: '0.875rem',
-      },
-      lg: {
-        h1: '2.5rem',
-        h2: '1.75rem',
-        p: '1.125rem',
-        button: '1.125rem',
-        footer: '1rem',
-      },
-      xl: {
-        h1: '3rem',
-        h2: '2rem',
-        p: '1.25rem',
-        button: '1.25rem',
-        footer: '1.125rem',
-      },
-    };
-    return sizes[baseSize]?.[element] || '16px';
   }
 }
