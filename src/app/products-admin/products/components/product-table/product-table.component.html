@@ -4,44 +4,32 @@
       <thead class="sticky top-0 z-10 bg-base-100">
         <tr>
           <th class="p-0">
-            <div
-              class="bg-primary-dark rounded-2xl text-accent-color px-4 py-3 m-2"
-            >
+            <div class="bg-primary-dark rounded-2xl text-accent-color px-4 py-3 m-2">
               Nombre
             </div>
           </th>
           <th class="p-0">
-            <div
-              class="bg-primary-dark rounded-2xl text-accent-color px-4 py-3 m-2"
-            >
+            <div class="bg-primary-dark rounded-2xl text-accent-color px-4 py-3 m-2">
               Categoría
             </div>
           </th>
           <th class="p-0">
-            <div
-              class="bg-primary-dark rounded-2xl text-accent-color px-4 py-3 m-2"
-            >
+            <div class="bg-primary-dark rounded-2xl text-accent-color px-4 py-3 m-2">
               Stock
             </div>
           </th>
           <th class="p-0">
-            <div
-              class="bg-primary-dark rounded-2xl text-accent-color px-4 py-3 m-2"
-            >
+            <div class="bg-primary-dark rounded-2xl text-accent-color px-4 py-3 m-2">
               Imagen
             </div>
           </th>
           <th class="p-0">
-            <div
-              class="bg-primary-dark rounded-2xl text-accent-color px-4 py-3 m-2"
-            >
+            <div class="bg-primary-dark rounded-2xl text-accent-color px-4 py-3 m-2">
               Precio
             </div>
           </th>
           <th class="p-0">
-            <div
-              class="bg-primary-dark rounded-2xl text-accent-color px-4 py-3 m-2"
-            >
+            <div class="bg-primary-dark rounded-2xl text-accent-color px-4 py-3 m-2">
               Opciones
             </div>
           </th>
@@ -52,10 +40,7 @@
         @for(product of products(); track product.id){
         <tr class="border-b-2 border-sidebar-gray">
           <td class="border-b-2 border-sidebar-gray">
-            <a
-              [routerLink]="['/products', product.id]"
-              class="hover:text-red-600 transition-colors duration-200"
-            >
+            <a [routerLink]="['/products', product.id]" class="hover:text-red-600 transition-colors duration-200">
               {{ product.name }}
             </a>
           </td>
@@ -63,15 +48,13 @@
             {{ getCategoryName()(product.categoryId) }}
           </td>
           <td class="border-b-2 border-sidebar-gray">
-            @if (product.stock <= 10) {
-            <span class="text-error font-semibold">{{ product.stock }}</span>
-            } @else if (product.stock <= 20) {
-            <span class="text-orange-500 font-semibold">{{
-              product.stock
-            }}</span>
-            } @else {
-            <span class="text-success font-semibold">{{ product.stock }}</span>
-            }
+            @if (product.stock <= 10) { <span class="text-error font-semibold">{{ product.stock }}</span>
+              } @else if (product.stock <= 20) { <span class="text-orange-500 font-semibold">{{
+                product.stock
+                }}</span>
+                } @else {
+                <span class="text-success font-semibold">{{ product.stock }}</span>
+                }
           </td>
           <!-- <td class="border-b-2 border-sidebar-gray text-center">
             <div class="inline-block">
@@ -90,12 +73,8 @@
             <div class="flex justify-center items-center w-full py-2">
               <div class="avatar">
                 <div class="mask mask-squircle h-12 w-12">
-                  <img
-                    [src]="product.image ?? [] | productImage"
-                    [alt]="product.name"
-                    onerror="this.src='./assets/file.png'"
-                    class="object-cover"
-                  />
+                  <img [src]="product.image ?? [] | productImage" [alt]="product.name"
+                    onerror="this.src='./assets/file.png'" class="object-cover" />
                 </div>
               </div>
             </div>
@@ -104,68 +83,31 @@
             {{ product.price | currency }}
           </td>
           <td class="border-b-2 border-sidebar-gray">
-            <button
-              class="rounded p-1 hover:bg-blue-100 text-gray-400 cursor-pointer"
-              [routerLink]="['/products', product.id]"
-            >
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                class="w-5 h-5"
-                fill="none"
-                viewBox="0 0 24 24"
-                stroke="currentColor"
-              >
-                <path
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                  stroke-width="2"
-                  d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"
-                />
-                <path
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                  stroke-width="2"
-                  d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"
-                />
+            <button class="rounded p-1 hover:bg-blue-100 text-gray-400 cursor-pointer"
+              [routerLink]="['/products', product.id]">
+              <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24"
+                stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                  d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                  d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
               </svg>
             </button>
 
-            <button
-              class="rounded p-1 hover:bg-yellow-100 text-gray-400 cursor-pointer"
-              [routerLink]="['/products', product.id]"
-            >
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                class="w-5 h-5"
-                fill="none"
-                viewBox="0 0 24 24"
-                stroke="currentColor"
-              >
-                <path
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                  stroke-width="2"
-                  d="M11 5h2M12 4v2m7.207 1.793a1 1 0 010 1.414l-10 10a1 1 0 01-.414.242l-4 1a1 1 0 01-1.242-1.242l1-4a1 1 0 01.242-.414l10-10a1 1 0 011.414 0z"
-                />
+            <button class="rounded p-1 hover:bg-yellow-100 text-gray-400 cursor-pointer"
+              [routerLink]="['/products', product.id]">
+              <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24"
+                stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                  d="M11 5h2M12 4v2m7.207 1.793a1 1 0 010 1.414l-10 10a1 1 0 01-.414.242l-4 1a1 1 0 01-1.242-1.242l1-4a1 1 0 01.242-.414l10-10a1 1 0 011.414 0z" />
               </svg>
             </button>
-            <button
-              class="rounded p-1 hover:bg-red-100 text-gray-400 cursor-pointer"
-              (click)="onDeleteProduct(product.id)"
-            >
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                class="w-5 h-5"
-                fill="none"
-                viewBox="0 0 24 24"
-                stroke="currentColor"
-              >
-                <path
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                  stroke-width="2"
-                  d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5-4h4a1 1 0 011 1v1H9V4a1 1 0 011-1zm-7 4h18"
-                />
+            <button class="rounded p-1 hover:bg-red-100 text-gray-400 cursor-pointer"
+              (click)="onDeleteProduct(product.id)">
+              <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24"
+                stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                  d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5-4h4a1 1 0 011 1v1H9V4a1 1 0 011-1zm-7 4h18" />
               </svg>
             </button>
           </td>
@@ -174,6 +116,30 @@
       </tbody>
     </table>
 
+    <div class="flex justify-between items-center p-4 bg-base-100 border-t border-sidebar-gray">
+    <div class="text-sm text-gray-500">
+    </div>
+    
+    <div class="join grid grid-cols-2 w-64">
+      <button 
+        class="join-item btn btn-outline btn-sm" 
+        [disabled]="currentPage() === 1"
+        (click)="onPageChange(currentPage() - 1)">
+        « Anterior
+      </button>
+      <button 
+        class="join-item btn btn-outline btn-sm" 
+        [disabled]="currentPage() >= totalPages()"
+        (click)="onPageChange(currentPage() + 1)">
+        Siguiente »
+      </button>
+    </div>
+    
+    <div class="text-sm font-semibold">
+      Página {{ currentPage() }} de {{ totalPages() }}
+    </div>
+  </div>
+
     <div class="modal" [class.modal-open]="showConfirmDeleteModal()">
       <div class="modal-box">
         <h3 class="font-bold text-lg align-center">¿Estás seguro?</h3>
@@ -181,10 +147,7 @@
           Esta acción eliminará el producto permanentemente.
         </p>
         <div class="modal-action justify-center">
-          <button
-            class="btn bg-button-gray hover:to-button-gray-hover"
-            (click)="confirmDelete()"
-          >
+          <button class="btn bg-button-gray hover:to-button-gray-hover" (click)="confirmDelete()">
             Eliminar
           </button>
           <button class="btn" (click)="showConfirmDeleteModal.set(false)">
@@ -194,10 +157,7 @@
       </div>
     </div>
 
-    <div
-      class="modal text-center"
-      [class.modal-open]="showSuccessModalDelete()"
-    >
+    <div class="modal text-center" [class.modal-open]="showSuccessModalDelete()">
       <div class="modal-box">
         <h3 class="font-bold text-lg">¡Producto eliminado!</h3>
         <p class="font-bold text-lg">

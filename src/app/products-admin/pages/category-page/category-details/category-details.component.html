@@ -156,15 +156,21 @@
         <button
           type="button"
           [routerLink]="['/products']"
-          class="px-6 py-2 rounded-full border border-primary-dark font-bold text-primary-dark hover:bg-gray-200 cursor-pointer"
+          [disabled]="isSaving()"
+          class="px-6 py-2 rounded-full border border-primary-dark font-bold text-primary-dark hover:bg-gray-200 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
         >
           Cancelar
         </button>
         <button
           type="submit"
-          class="px-6 py-2 rounded-full bg-primary-dark text-accent-color font-bold hover:bg-button-gray-hover cursor-pointer"
+          [disabled]="isSaving()"
+          class="px-6 py-2 rounded-full bg-primary-dark text-accent-color font-bold hover:bg-button-gray-hover cursor-pointer flex items-center gap-2 disabled:opacity-70 disabled:cursor-not-allowed"
         >
-          Guardar
+           @if (isSaving()) {
+            <span class="loading loading-spinner loading-sm text-accent-color"></span>
+          } @else {
+            Guardar
+          }
         </button>
       </div>
       }

@@ -19,17 +19,23 @@ import { ProductImagePipe } from '../../pipes/product-image.pipe';
   templateUrl: './product-table.component.html',
 })
 export class ProductTableComponent {
-  products = input.required<Product[]>();
 
+  products = input.required<Product[]>();
+  getCategoryName = input.required<(categoryId: number | null) => string>();
+  
+
+  currentPage = input.required<number>();
+  totalPages = input.required<number>(); 
   showSuccessModalDelete = signal(false);
   showConfirmDeleteModal = signal(false);
   productToDelete = signal<number | null>(null);
-  getCategoryName = input.required<(categoryId: number | null) => string>();
-
+  
   router = inject(Router);
   productsService = inject(ProductsService);
 
   @Output() productDeleted = new EventEmitter<number>();
+
+  @Output() pageChange = new EventEmitter<number>();
 
   onDeleteProduct(productId: number): void {
     this.productToDelete.set(productId);
@@ -53,5 +59,9 @@ export class ProductTableComponent {
         console.error('Error al eliminar el producto:', error);
       },
     });
+  }
+
+  onPageChange(newPage: number) {
+    this.pageChange.emit(newPage);
   }
 }

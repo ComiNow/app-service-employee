@@ -1,13 +1,14 @@
 import { Component, OnInit, inject, signal, HostListener, OnDestroy } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators, FormArray, FormControl } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
-import { HttpClient, HttpClientModule } from '@angular/common/http';
+import { HttpClient, HttpClientModule, HttpErrorResponse } from '@angular/common/http';
 import { CommonModule } from '@angular/common';
 import { CustomizationService, DaisyTheme, CustomizationPayload } from '../../services/customization.service';
 import { FormUtils } from '../../../utils/form-utils';
 import { Observable, Subscription, of } from 'rxjs';
 import { catchError, finalize } from 'rxjs/operators';
 import { AuthService } from '../../../auth/services/auth.service';
+import { NavbarComponent } from '../../../shared/components/app-navbar/navbar.component';
 
 interface GoogleFont {
   family: string;
@@ -33,7 +34,7 @@ interface ThemeColors {
   selector: 'app-business-customization',
   templateUrl: './business-customization.component.html',
   standalone: true,
-  imports: [ReactiveFormsModule, RouterLink, HttpClientModule, CommonModule]
+  imports: [ReactiveFormsModule, RouterLink, CommonModule, NavbarComponent]
 })
 export class BusinessCustomizationComponent implements OnInit, OnDestroy {
   fb = inject(FormBuilder);
@@ -44,9 +45,13 @@ export class BusinessCustomizationComponent implements OnInit, OnDestroy {
 
   businessId: string | null = null;
   showSuccessModalValue = signal(false);
+  showErrorModalValue = signal(false);
+  errorMessage = signal('');
   isThemeDropdownOpen = signal(false);
   isLoadingInitial = signal(true);
   isSaving = signal(false);
+  itemsPerPage = 20;
+  currentLoadedCount = 0;
 
   currentYear = new Date().getFullYear();
   logoPreviewUrl: string | ArrayBuffer | null = null;
@@ -439,7 +444,7 @@ export class BusinessCustomizationComponent implements OnInit, OnDestroy {
       reader.readAsDataURL(file);
     } else {
       this.businessForm.patchValue({ logoFile: null });
-      
+
       this.logoPreviewUrl = this.businessForm.get('existingLogoUrl')?.value ?? null;
     }
   }
@@ -481,25 +486,94 @@ export class BusinessCustomizationComponent implements OnInit, OnDestroy {
     const url = `https://www.googleapis.com/webfonts/v1/webfonts?key=${this.googleFontsApiKey}`;
     this.http.get<{ items: GoogleFont[] }>(url).subscribe({
       next: response => {
-        console.log('Fuentes de Google cargadas:', response.items);
         this.googleFonts = response.items;
-        this.filteredGoogleFonts = this.googleFonts.slice(0, 50);
+        this.currentLoadedCount = this.itemsPerPage;
+        this.filteredGoogleFonts = this.googleFonts.slice(0, this.currentLoadedCount);
+        this.loadPreviewFontsBatch(this.filteredGoogleFonts);
       },
-      error: error => {
-        console.error('Error al cargar Google Fonts:', error);
-      }
+      error: error => console.error('Error al cargar Google Fonts:', error)
     });
   }
 
-  onFontSearch(event: Event): void {
-    const searchTerm = (event.target as HTMLInputElement).value.toLowerCase();
-    if (searchTerm.length > 2) {
-      this.filteredGoogleFonts = this.googleFonts.filter(font =>
-        font.family.toLowerCase().includes(searchTerm)
-      ).slice(0, 50);
-    } else {
-      this.filteredGoogleFonts = this.googleFonts.slice(0, 50);
+  onScrollFonts(event: Event): void {
+    const container = event.target as HTMLElement;
+
+    const searchInput = document.querySelector('input[placeholder*="Ej: Open Sans"]') as HTMLInputElement;
+    if (searchInput && searchInput.value.length > 0) return;
+
+    if (container.scrollHeight - container.scrollTop <= container.clientHeight + 10) {
+      this.loadMoreFonts();
     }
+  }
+
+  loadMoreFonts(): void {
+    if (this.currentLoadedCount >= this.googleFonts.length) return;
+
+    const nextBatchCount = this.currentLoadedCount + this.itemsPerPage;
+    const nextBatch = this.googleFonts.slice(this.currentLoadedCount, nextBatchCount);
+
+    this.filteredGoogleFonts = [...this.filteredGoogleFonts, ...nextBatch];
+    this.currentLoadedCount = nextBatchCount;
+
+    this.loadPreviewFontsBatch(nextBatch);
+  }
+
+  selectFont(fontFamily: string) {
+    this.businessForm.patchValue({ fontFamily: fontFamily });
+    this.loadGoogleFontDynamically(fontFamily);
+  }
+
+  isFontSelected(fontFamily: string): boolean {
+    return this.businessForm.get('fontFamily')?.value === fontFamily;
+  }
+
+  getFontFamilyStyle(fontFamily: string): string {
+    return `'${fontFamily}', sans-serif`;
+  }
+
+  onFontSearch(event: Event): void {
+  const searchTerm = (event.target as HTMLInputElement).value.toLowerCase();
+
+  if (!searchTerm) {
+    this.currentLoadedCount = this.itemsPerPage;
+    this.filteredGoogleFonts = this.googleFonts.slice(0, this.currentLoadedCount);
+  } else {
+
+    this.filteredGoogleFonts = this.googleFonts.filter(font =>
+      font.family.toLowerCase().includes(searchTerm)
+    );
+    this.loadPreviewFontsBatch(this.filteredGoogleFonts.slice(0, 20));
+  }
+}
+
+  private loadPreviewFontsBatch(fonts: GoogleFont[]): void {
+  if (fonts.length === 0) return;
+
+  const fontsToLoad = fonts
+    .map(f => f.family)
+    .filter(f => !['sans-serif', 'serif', 'monospace'].includes(f.toLowerCase()));
+
+  if (fontsToLoad.length === 0) return;
+
+  const familiesParam = fontsToLoad
+    .map(f => f.replace(/\s/g, '+'))
+    .join('&family=');
+
+  const batchId = `google-fonts-batch-${fontsToLoad[0].replace(/\s/g, '-')}`;
+  
+  if (!document.getElementById(batchId)) {
+    const link = document.createElement('link');
+    link.id = batchId;
+    link.rel = 'stylesheet';
+    link.href = `https://fonts.googleapis.com/css2?family=${familiesParam}&display=swap`;
+    document.head.appendChild(link);
+  }
+}
+
+
+  private getPreviewTextSubset(): string {
+
+    return '';
   }
 
   loadGoogleFontDynamically(fontFamily: string): void {
@@ -515,6 +589,11 @@ export class BusinessCustomizationComponent implements OnInit, OnDestroy {
     }
   }
 
+  closeErrorModal() {
+    this.showErrorModalValue.set(false);
+    this.errorMessage.set('');
+  }
+
   onSubmitBusinessForm() {
     Object.keys(this.businessForm.controls).forEach((controlName) => {
       const control = this.businessForm.get(controlName);
@@ -523,13 +602,20 @@ export class BusinessCustomizationComponent implements OnInit, OnDestroy {
 
     if (this.businessForm.invalid) {
       console.error('Formulario de negocio inválido');
+      this.errorMessage.set('Por favor, completa todos los campos requeridos correctamente.');
+      this.showErrorModalValue.set(true);
       return;
     }
 
     if (!this.businessId) {
-      console.error('Business ID no disponible para guardar/actualizar la personalización.');
+      console.error('Business ID no disponible.');
       return;
     }
+
+    // Limpieza de estados
+    this.showSuccessModalValue.set(false);
+    this.showErrorModalValue.set(false);
+    this.errorMessage.set('');
 
     this.isSaving.set(true);
 
@@ -539,7 +625,6 @@ export class BusinessCustomizationComponent implements OnInit, OnDestroy {
       .map(control => control.value)
       .filter((file): file is File => file !== null);
 
-    this.showSuccessModalValue.set(false);
 
     const customizationDataForService = {
       businessName: formValues.businessBrand || '',
@@ -570,36 +655,66 @@ export class BusinessCustomizationComponent implements OnInit, OnDestroy {
 
 
     operation$.pipe(
-      catchError(error => {
-        console.error('Error al guardar/actualizar personalización:', error);
-        return of(null);
-      }),
+      // IMPORTANTE: Se eliminó el catchError(return of(null)) para que el error llegue al subscribe
       finalize(() => {
         this.isSaving.set(false);
-        if (!this.isCustomizationExisting && this.businessId) {
-            this.loadExistingCustomization(this.businessId); 
+        // Solo recargamos si fue exitoso (no hay modal de error abierto)
+        if (!this.isCustomizationExisting && this.businessId && !this.showErrorModalValue()) {
+          this.loadExistingCustomization(this.businessId);
         }
       })
-    ).subscribe((response: any) => {
-      if (response) {
-        console.log('Personalización guardada/actualizada con éxito:', response);
-        this.showSuccessModalValue.set(true);
-        this.isCustomizationExisting = true;
+    ).subscribe({
+      next: (response) => {
+        if (response) {
+          console.log('Personalización guardada con éxito:', response);
+          this.showSuccessModalValue.set(true);
+          this.isCustomizationExisting = true;
+
+          setTimeout(() => {
+            this.showSuccessModalValue.set(false);
+            this.router.navigate(['']);
+          }, 2000);
+        }
+      },
+      error: (error: HttpErrorResponse) => {
+        console.error('Error detallado:', error);
+
+        const customMsg = this.getCustomErrorMessage(error);
+
+        this.errorMessage.set(customMsg);
+        this.showErrorModalValue.set(true);
 
         setTimeout(() => {
-          this.showSuccessModalValue.set(false); 
-          this.router.navigate(['']); 
-        }, 2000);
-      }
+            this.showSuccessModalValue.set(false);
+            this.router.navigate(['']);
+          }, 4000);
+
+      },
     });
+  }
+
+  private getCustomErrorMessage(error: HttpErrorResponse): string {
+    if (error.status === 0) {
+      return 'No hay conexión con el servidor. Verifica tu internet.';
+    }
+    if (error.status === 400) {
+      return error.error?.message || 'Verifica los datos ingresados.';
+    }
+    if (error.status === 401 || error.status === 403) {
+      return 'No tienes permisos para realizar esta acción.';
+    }
+    if (error.status === 500) {
+      return 'Error interno del servidor. Intenta más tarde.';
+    }
+    return 'Ocurrió un error inesperado. Intenta nuevamente.';
   }
 
   loadExistingCustomization(businessId: string): void {
     this.isLoadingInitial.set(true);
-    
+
     if (!businessId) {
       console.warn('No businessId proporcionado para cargar la personalización.');
-      this.isCustomizationExisting = false; 
+      this.isCustomizationExisting = false;
       this.isLoadingInitial.set(false);
       return;
     }
@@ -631,7 +746,7 @@ export class BusinessCustomizationComponent implements OnInit, OnDestroy {
         });
 
         this.loadGoogleFontDynamically(data.font);
-        this.isCustomizationExisting = true; 
+        this.isCustomizationExisting = true;
         this.isLoadingInitial.set(false);
       },
       error: (error) => {
@@ -648,9 +763,9 @@ export class BusinessCustomizationComponent implements OnInit, OnDestroy {
         });
         this.logoPreviewUrl = null;
         this.carouselImagePreviews = [];
-        this.loadGoogleFontDynamically('sans-serif'); 
+        this.loadGoogleFontDynamically('sans-serif');
         this.isCustomizationExisting = false;
-        this.isLoadingInitial.set(false); 
+        this.isLoadingInitial.set(false);
       }
     });
   }

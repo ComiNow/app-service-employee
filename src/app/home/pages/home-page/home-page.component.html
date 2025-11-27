@@ -1,3 +1,50 @@
-<div class="flex items-center justify-center min-h-screen">
-  
+<div class="min-h-screen w-full flex items-center justify-center bg-base-200 transition-colors duration-300"
+     [attr.data-theme]="currentThemeName()"
+     [style.font-family]="businessData()?.font || 'sans-serif'">
+
+  @if (isLoading()) {
+    <div class="flex flex-col items-center gap-4">
+      <span class="loading loading-spinner loading-lg text-primary"></span>
+      <span class="text-sm opacity-50 animate-pulse">Cargando identidad...</span>
+    </div>
+  } @else {
+    
+    <div class="card w-full max-w-lg items-center text-center p-6 md:p-10 m-4 animate-fade-in-up">
+      
+      <div class="avatar mb-6">
+        <div class="w-28 md:w-36 rounded-full ring ring-primary ring-offset-base-100 ring-offset-4 shadow-xl transition-all duration-500 hover:scale-105">
+          @if (businessData()?.logo) {
+            <img [src]="businessData()?.logo" alt="Logo Empresa" class="object-cover w-full h-full" />
+          } @else {
+            <div class="bg-neutral text-neutral-content grid place-items-center h-full w-full text-5xl font-bold">
+              {{ businessData()?.brand?.charAt(0) || 'B' }}
+            </div>
+          }
+        </div>
+      </div>
+
+      <h1 class="text-3xl md:text-5xl font-extrabold text-primary mb-3 tracking-tight break-words w-full">
+        {{ businessData()?.brand || 'Mi Empresa' }}
+      </h1>
+
+      <div class="relative py-2">
+        <span class="text-4xl text-base-content/20 absolute -top-2 -left-2 font-serif">"</span>
+        <p class="text-lg md:text-xl text-base-content/80 font-medium italic px-4 leading-relaxed">
+          {{ welcomePhrase() }}
+        </p>
+        <span class="text-4xl text-base-content/20 absolute -bottom-4 -right-2 font-serif">"</span>
+      </div>
+
+      <div class="divider w-1/2 self-center opacity-50 my-8"></div>
+
+      <div class="flex flex-col items-center gap-1 opacity-60">
+        <span class="badge badge-ghost badge-sm font-mono">Panel de Empleado</span>
+        <span class="text-[10px] uppercase tracking-widest mt-1">
+          &copy; Todos los derechos reservados
+        </span>
+      </div>
+
+    </div>
+
+  }
 </div>

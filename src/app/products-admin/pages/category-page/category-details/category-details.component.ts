@@ -4,6 +4,7 @@ import { Router, RouterLink } from '@angular/router';
 import { FormUtils } from '../../../../utils/form-utils';
 import { CategoriesService } from '../../../products/services/categories.service';
 import { Category } from '../../../products/interfaces/category.interface';
+import { finalize } from 'rxjs';
 
 @Component({
   selector: 'category-details',
@@ -26,6 +27,7 @@ export class CategoryDetailsComponent {
   showSuccessModalCreate = signal(false);
 
   imageChanged = signal(false);
+  isSaving = signal(false);
 
   productForm = this.fb.group({
     name: ['', Validators.required],
@@ -97,14 +99,20 @@ export class CategoryDetailsComponent {
       return;
     }
 
+    if (categoryId === 0 && filesToUpload.length < 2) {
+      alert('Para crear una categoría, ambas imágenes son obligatorias.');
+      return;
+    }
+
+    this.isSaving.set(true);
 
     if (categoryId === 0) {
-      if (filesToUpload.length < 2) {
-        alert('Para crear una categoría, ambas imágenes son obligatorias.');
-        return;
-      }
       const imageFileList = this.arrayToFileList(filesToUpload.map(f => f.file));
-      this.categoriesService.createCategory(categoryLike, imageFileList).subscribe({
+      this.categoriesService.createCategory(categoryLike, imageFileList)
+      .pipe(
+        finalize(() => this.isSaving.set(false))
+      )
+      .subscribe({
         next: (category) => {
           this.showSuccessModalCreate.set(true);
           setTimeout(() => {
@@ -121,7 +129,11 @@ export class CategoryDetailsComponent {
         categoryLike,
         this.imageFiles[0],
         this.imageFiles[1]
-      ).subscribe({
+      )
+      .pipe(
+        finalize(() => this.isSaving.set(false))
+      )
+      .subscribe({
         next: (category) => {
           this.showSuccessModalUpdate.set(true);
           setTimeout(() => {
@@ -142,4 +154,3 @@ export class CategoryDetailsComponent {
   }
 
 }
-

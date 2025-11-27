@@ -1,7 +1,7 @@
 import { Component, OnInit, inject, signal } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
-import { HttpClientModule } from '@angular/common/http';
+import { HttpClientModule, HttpErrorResponse } from '@angular/common/http';
 import { CommonModule } from '@angular/common';
 import { AuthService } from '../../services/auth.service';
 import { FormUtils } from '../../../utils/form-utils';
@@ -27,8 +27,10 @@ export class RegisterBusinessComponent implements OnInit {
   colombiaApiService = inject(ColombiaApiService);
 
   showSuccessModalValue = signal(false);
+  showErrorModalValue = signal(false);
+  errorMessage = signal('');
   isSubmitting = signal(false);
-  
+
   currentYear = new Date().getFullYear();
   logoPreviewUrl: string | ArrayBuffer | null = null;
 
@@ -76,7 +78,7 @@ export class RegisterBusinessComponent implements OnInit {
 
   ngOnInit(): void {
     this.registerDataFromPage1 = this.dataService.getRegisterData();
-    
+
     if (!this.registerDataFromPage1) {
       this.router.navigateByUrl('/auth/register');
       return;
@@ -139,6 +141,11 @@ export class RegisterBusinessComponent implements OnInit {
     return this.showSuccessModalValue();
   }
 
+  closeErrorModal() {
+    this.showErrorModalValue.set(false);
+    this.errorMessage.set('');
+  }
+
   onLogoSelected(event: Event) {
     const input = event.target as HTMLInputElement;
     if (input.files && input.files.length > 0) {
@@ -154,6 +161,47 @@ export class RegisterBusinessComponent implements OnInit {
       this.businessForm.patchValue({ logoFile: null });
       this.logoPreviewUrl = null;
     }
+  }
+
+  private getCustomErrorMessage(error: HttpErrorResponse): string {
+    if (error.status === 0) {
+      return 'No hay conexión con el servidor. Verifica tu internet.';
+    }
+
+    if (error.status === 400) {
+      const serverMsg = error.error?.message;
+
+      if (Array.isArray(serverMsg)) {
+        return serverMsg.join(', ');
+      }
+
+
+      if (typeof serverMsg === 'string') {
+        if (serverMsg.toLowerCase().includes('email') || serverMsg.toLowerCase().includes('correo')) {
+          return 'El correo electrónico ya está registrado. Intenta con otro o inicia sesión.';
+        }
+        if (serverMsg.toLowerCase().includes('phone') || serverMsg.toLowerCase().includes('teléfono')) {
+          return 'El número telefónico ya está registrado en otra cuenta.';
+        }
+        if (serverMsg.toLowerCase().includes('business') || serverMsg.toLowerCase().includes('negocio')) {
+          return 'Ya existe un negocio registrado con ese nombre o datos.';
+        }
+
+        return serverMsg;
+      }
+
+      return 'Por favor verifica los datos ingresados.';
+    }
+
+    if (error.status === 401 || error.status === 403) {
+      return 'No tienes permisos para realizar esta acción.';
+    }
+
+    if (error.status === 500) {
+      return 'Error interno del servidor. Por favor intenta más tarde.';
+    }
+
+    return 'Ocurrió un error inesperado. Intenta nuevamente.';
   }
 
   onSubmitBusinessForm() {
@@ -180,14 +228,14 @@ export class RegisterBusinessComponent implements OnInit {
       businessName: businessFormValues.businessName,
       businessEmail: businessFormValues.businessEmail,
       businessPhone: businessFormValues.businessPhoneNumber,
-      
+
       adminFullName: registerDataPage1Values.fullName,
       adminEmail: registerDataPage1Values.email,
       adminPhone: registerDataPage1Values.phoneNumber,
       adminIdentificationNumber: registerDataPage1Values.identificationNumber,
       adminIdentificationType: registerDataPage1Values.identificationType,
       adminPassword: registerDataPage1Values.password,
-      
+
       locationState: businessFormValues.department,
       locationCity: businessFormValues.city,
       locationPostalCode: businessFormValues.postalCode,
@@ -195,25 +243,30 @@ export class RegisterBusinessComponent implements OnInit {
     };
 
     this.authService.registerBusiness(payloadForBackend)
-    .pipe(
-      finalize(() => this.isSubmitting.set(false))
-    )
-    .subscribe({
-      next: (response) => {
-        this.showSuccessModalValue.set(true);
-        this.dataService.clearRegisterData();
-        setTimeout(() => {
-          this.showSuccessModalValue.set(false);
-          this.router.navigateByUrl('/customization');
-        }, 3000);
-      },
-      error: (error) => {
-        console.error('Error al registrar negocio:', error);
-        alert(
-          'Error al registrar negocio: ' +
-            (error.error?.message || 'Verifique los datos ingresados.')
-        );
-      },
-    });
+      .pipe(
+        finalize(() => this.isSubmitting.set(false))
+      )
+      .subscribe({
+        next: (response) => {
+          this.showSuccessModalValue.set(true);
+          this.dataService.clearRegisterData();
+          setTimeout(() => {
+            this.showSuccessModalValue.set(false);
+            this.router.navigateByUrl('/customization');
+          }, 3000);
+        },
+        error: (error: HttpErrorResponse) => {
+          console.error('Error detallado:', error);
+
+          const customMsg = this.getCustomErrorMessage(error);
+          this.errorMessage.set(customMsg);
+          this.showErrorModalValue.set(true);
+
+          setTimeout(() => {
+            this.showErrorModalValue.set(false);
+            this.router.navigateByUrl('/auth/register');
+          }, 4000);
+        },
+      });
   }
 }
